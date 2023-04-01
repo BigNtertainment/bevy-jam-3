@@ -1,8 +1,8 @@
 [package]
-name = "bevy_game" # ToDo
+name = "drug_test"
 version = "0.1.0"
 publish = false
-authors = ["Niklas Eicker <git@nikl.me>"] # ToDo: you are the author ;)
+authors = ["Dawid Piotrowski", "Tymon Płochocki", "Kajetan Witkowski", "Sebastian Flajszer"]
 edition = "2021"
 exclude = ["dist", "build", "assets", "credits"]
 
