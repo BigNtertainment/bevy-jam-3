@@ -38,6 +38,7 @@ rand = { version = "0.8.3" }
 winit = { version = "0.28", default-features = false }
 image = { version = "0.24", default-features = false }
 bevy_rapier2d = "0.21.0"
+bevy_console = "0.7.0"
 
 [build-dependencies]
 embed-resource = "1.4"
