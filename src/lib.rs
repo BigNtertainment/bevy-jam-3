@@ -2,6 +2,7 @@ mod actions;
 mod cleanup;
 mod loading;
 mod menu;
+mod pill;
 mod player;
 mod unit;
 mod world;
@@ -18,6 +19,7 @@ use bevy_rapier2d::{
 };
 use loading::LoadingPlugin;
 use menu::MenuPlugin;
+use pill::PillPlugin;
 use player::PlayerPlugin;
 use world::WorldPlugin;
 
@@ -45,6 +47,7 @@ impl Plugin for GamePlugin {
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(PlayerPlugin)
+            .add_plugin(PillPlugin)
             .add_plugin(WorldPlugin);
 
         #[cfg(debug_assertions)]
