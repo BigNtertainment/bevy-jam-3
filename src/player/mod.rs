@@ -9,20 +9,26 @@ use crate::{
     GameState,
 };
 
+use self::ui::{setup_ui, update_ui, PlayerUI};
+
+mod ui;
+
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
-            .add_system(setup_player.in_schedule(OnEnter(GameState::Playing)))
-            .add_system(player_movement.in_set(OnUpdate(GameState::Playing)))
-            .add_system(cleanup::<Player>.in_schedule(OnExit(GameState::Playing)));
+            .add_systems((setup_player, setup_ui).in_schedule(OnEnter(GameState::Playing)))
+            .add_systems((player_movement, update_ui).in_set(OnUpdate(GameState::Playing)))
+            .add_systems(
+                (cleanup::<Player>, cleanup::<PlayerUI>).in_schedule(OnExit(GameState::Playing)),
+            );
     }
 }
 
 #[derive(Reflect, Component, Copy, Clone, Default, Debug, PartialEq, Eq)]
 #[reflect(Component)]
-struct Player;
+pub struct Player;
 
 #[derive(Bundle)]
 struct PlayerBundle {

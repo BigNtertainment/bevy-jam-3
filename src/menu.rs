@@ -1,3 +1,4 @@
+use crate::cleanup::cleanup;
 use crate::loading::FontAssets;
 use crate::GameState;
 use bevy::prelude::*;
@@ -11,7 +12,7 @@ impl Plugin for MenuPlugin {
         app.init_resource::<ButtonColors>()
             .add_system(setup_menu.in_schedule(OnEnter(GameState::Menu)))
             .add_system(click_play_button.in_set(OnUpdate(GameState::Menu)))
-            .add_system(cleanup_menu.in_schedule(OnExit(GameState::Menu)));
+            .add_system(cleanup::<MainMenuUI>.in_schedule(OnExit(GameState::Menu)));
     }
 }
 
@@ -30,6 +31,9 @@ impl Default for ButtonColors {
     }
 }
 
+#[derive(Component)]
+pub struct MainMenuUI;
+
 fn setup_menu(
     mut commands: Commands,
     font_assets: Res<FontAssets>,
@@ -37,26 +41,40 @@ fn setup_menu(
 ) {
     commands.spawn(Camera2dBundle::default());
     commands
-        .spawn(ButtonBundle {
+        .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Px(120.0), Val::Px(50.0)),
-                margin: UiRect::all(Val::Auto),
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::Center,
+                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                padding: UiRect::all(Val::Px(20.0)),
                 ..Default::default()
             },
-            background_color: button_colors.normal.into(),
+            background_color: Color::NONE.into(),
             ..Default::default()
         })
+        .insert(Name::new("UI"))
+        .insert(MainMenuUI)
         .with_children(|parent| {
-            parent.spawn(TextBundle::from_section(
-                "Play",
-                TextStyle {
-                    font: font_assets.fira_sans.clone(),
-                    font_size: 40.0,
-                    color: Color::rgb(0.9, 0.9, 0.9),
-                },
-            ));
+            parent
+                .spawn(ButtonBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(120.0), Val::Px(50.0)),
+                        margin: UiRect::all(Val::Auto),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
+                    },
+                    background_color: button_colors.normal.into(),
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent.spawn(TextBundle::from_section(
+                        "Play",
+                        TextStyle {
+                            font: font_assets.fira_sans.clone(),
+                            font_size: 40.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
+                });
         });
 }
 
@@ -81,8 +99,4 @@ fn click_play_button(
             }
         }
     }
-}
-
-fn cleanup_menu(mut commands: Commands, button: Query<Entity, With<Button>>) {
-    commands.entity(button.single()).despawn_recursive();
 }
