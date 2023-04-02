@@ -10,7 +10,7 @@ use crate::{
     GameState,
 };
 
-use self::{ui::{setup_ui, update_ui, PlayerUI}, inventory::Inventory};
+use self::{ui::{setup_ui, update_health_ui, PlayerUI, HealthUI, InventorySlotUI, update_inventory_ui}, inventory::Inventory};
 
 mod ui;
 mod inventory;
@@ -20,8 +20,11 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
+            .register_type::<PlayerUI>()
+            .register_type::<HealthUI>()
+            .register_type::<InventorySlotUI>()
             .add_systems((setup_player, setup_ui).in_schedule(OnEnter(GameState::Playing)))
-            .add_systems((player_movement, pick_up_pills, update_ui).in_set(OnUpdate(GameState::Playing)))
+            .add_systems((player_movement, pick_up_pills, update_health_ui, update_inventory_ui).in_set(OnUpdate(GameState::Playing)))
             .add_systems(
                 (cleanup::<Player>, cleanup::<PlayerUI>).in_schedule(OnExit(GameState::Playing)),
             );
@@ -52,6 +55,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
         player: Player::default(),
         sprite_bundle: SpriteBundle {
             texture: textures.player.clone(),
+            transform: Transform::from_xyz(0., 0., 5.),
             ..Default::default()
         },
         rigidbody: RigidBody::KinematicPositionBased,

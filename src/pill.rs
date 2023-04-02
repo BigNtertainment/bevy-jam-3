@@ -12,7 +12,7 @@ impl Plugin for PillPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Pill>()
             .add_system(pill_setup.in_schedule(OnEnter(GameState::Playing)))
-            .add_system(update_pill_color.in_set(OnUpdate(GameState::Playing)))
+            .add_system(update_pill_texture.in_set(OnUpdate(GameState::Playing)))
             .add_system(cleanup::<Pill>.in_schedule(OnExit(GameState::Playing)));
     }
 }
@@ -80,6 +80,17 @@ impl Pill {
             side_effect,
         }
     }
+
+	pub fn get_texture(&self, textures: &TextureAssets) -> Handle<Image> {
+        match self.main_effect {
+			PillEffect::Heal { .. } => textures.health_pill.clone(),
+			PillEffect::Speed { .. } => textures.speed_pill.clone(),
+            PillEffect::ToxicFart => textures.toxic_fart_pill.clone(),
+			PillEffect::Invisibility { .. } => textures.invisibility_pill.clone(),
+			PillEffect::Invincibility { .. } => textures.invincibility_pill.clone(),
+			_ => default()
+        }
+    }
 }
 
 impl Default for Pill {
@@ -87,19 +98,6 @@ impl Default for Pill {
         Self {
             main_effect: PillEffect::positive()[0],
             side_effect: PillEffect::negative()[0],
-        }
-    }
-}
-
-impl From<Pill> for Color {
-    fn from(pill: Pill) -> Self {
-        match pill.main_effect {
-            PillEffect::Heal { .. } => Color::hex("#d62004").unwrap(),
-            PillEffect::Speed { .. } => Color::hex("#04b3d6").unwrap(),
-            PillEffect::ToxicFart => Color::hex("#419e08").unwrap(),
-            PillEffect::Invisibility { .. } => Color::hex("#b50eed").unwrap(),
-            PillEffect::Invincibility { .. } => Color::hex("#120eed").unwrap(),
-            _ => Color::hex("#000000").unwrap(),
         }
     }
 }
@@ -130,11 +128,10 @@ impl Default for PillBundle {
     }
 }
 
-fn pill_setup(mut commands: Commands, textures: Res<TextureAssets>) {
+fn pill_setup(mut commands: Commands) {
     commands.spawn(PillBundle {
         pill: Pill::new(PillEffect::positive()[0]),
         sprite_bundle: SpriteBundle {
-            texture: textures.pill.clone(),
             transform: Transform::from_translation(Vec3::new(200., 0., 1.)),
             ..Default::default()
         },
@@ -144,7 +141,6 @@ fn pill_setup(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn(PillBundle {
         pill: Pill::new(PillEffect::positive()[1]),
         sprite_bundle: SpriteBundle {
-            texture: textures.pill.clone(),
             transform: Transform::from_translation(Vec3::new(-150., 125., 1.)),
             ..Default::default()
         },
@@ -154,7 +150,6 @@ fn pill_setup(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn(PillBundle {
         pill: Pill::new(PillEffect::positive()[2]),
         sprite_bundle: SpriteBundle {
-            texture: textures.pill.clone(),
             transform: Transform::from_translation(Vec3::new(-140., -20., 1.)),
             ..Default::default()
         },
@@ -164,7 +159,6 @@ fn pill_setup(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn(PillBundle {
         pill: Pill::new(PillEffect::positive()[3]),
         sprite_bundle: SpriteBundle {
-            texture: textures.pill.clone(),
             transform: Transform::from_translation(Vec3::new(140., -45., 1.)),
             ..Default::default()
         },
@@ -172,8 +166,8 @@ fn pill_setup(mut commands: Commands, textures: Res<TextureAssets>) {
     });
 }
 
-fn update_pill_color(mut query: Query<(&Pill, &mut Sprite)>) {
-    for (pill, mut sprite) in query.iter_mut() {
-        sprite.color = Color::from(*pill);
+fn update_pill_texture(mut query: Query<(&Pill, &mut Handle<Image>)>, textures: Res<TextureAssets>) {
+    for (pill, mut texture) in query.iter_mut() {
+        *texture = pill.get_texture(&textures);
     }
 }
