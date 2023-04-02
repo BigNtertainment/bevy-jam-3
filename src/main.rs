@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use bevy::window::PrimaryWindow;
 use bevy::winit::WinitWindows;
 use bevy::DefaultPlugins;
-use bevy_console::{ConsolePlugin, ConsoleConfiguration, ToggleConsoleKey};
+use bevy_console::{ConsoleConfiguration, ConsolePlugin, ToggleConsoleKey};
 use drug_test::GamePlugin;
 use std::io::Cursor;
 use winit::window::Icon;
@@ -25,9 +25,7 @@ fn main() {
         }))
         .add_plugin(ConsolePlugin)
         .insert_resource(ConsoleConfiguration {
-            keys: vec![
-                ToggleConsoleKey::KeyCode(KeyCode::Grave),
-            ],
+            keys: vec![ToggleConsoleKey::KeyCode(KeyCode::Grave)],
             height: 200.0,
             width: 400.0,
             top_pos: 10.0,
