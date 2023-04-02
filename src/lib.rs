@@ -1,5 +1,6 @@
 mod actions;
 mod cleanup;
+mod game_over;
 mod loading;
 mod menu;
 mod player;
@@ -16,6 +17,7 @@ use bevy_rapier2d::{
     prelude::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
+use game_over::GameOverPlugin;
 use loading::LoadingPlugin;
 use menu::MenuPlugin;
 use player::PlayerPlugin;
@@ -33,7 +35,7 @@ enum GameState {
     Playing,
     // Here the menu is drawn and waiting for player interaction
     Menu,
-    // Here the menu is drawn after player died but 
+    // Here the menu is drawn after player died but
     GameOver,
 }
 
@@ -57,7 +59,8 @@ impl Plugin for GamePlugin {
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(WorldPlugin);
+            .add_plugin(WorldPlugin)
+            .add_plugin(GameOverPlugin);
 
         #[cfg(debug_assertions)]
         {

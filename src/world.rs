@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::Collider;
 
-use crate::{cleanup::cleanup, loading::TextureAssets, GameState, WorldState};
+use crate::{cleanup::cleanup, loading::TextureAssets, WorldState};
 
 pub struct WorldPlugin;
 
