@@ -24,7 +24,7 @@ pub fn setup_go_ui(mut commands: Commands, mut console_line: EventWriter<PrintCo
                 padding: UiRect::all(Val::Px(20.0)),
                 ..Default::default()
             },
-            background_color: Color::RED.into(),
+            background_color: Color::Rgba { red: 1.0, green: 0.0, blue: 0.0, alpha: 0.4 }.into(),
             ..Default::default()
         })
         .insert(Name::new("GameOverUI"))

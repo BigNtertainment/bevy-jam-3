@@ -3,6 +3,7 @@ mod cleanup;
 mod game_over;
 mod loading;
 mod menu;
+mod pill;
 mod player;
 mod unit;
 mod world;
@@ -20,6 +21,7 @@ use bevy_rapier2d::{
 use game_over::GameOverPlugin;
 use loading::LoadingPlugin;
 use menu::MenuPlugin;
+use pill::PillPlugin;
 use player::PlayerPlugin;
 use world::WorldPlugin;
 
@@ -59,8 +61,9 @@ impl Plugin for GamePlugin {
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(PlayerPlugin)
-            .add_plugin(WorldPlugin)
-            .add_plugin(GameOverPlugin);
+            .add_plugin(GameOverPlugin)
+            .add_plugin(PillPlugin)
+            .add_plugin(WorldPlugin);
 
         #[cfg(debug_assertions)]
         {

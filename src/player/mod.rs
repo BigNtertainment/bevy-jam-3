@@ -1,17 +1,19 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, Sensor};
+use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, Sensor, RigidBody};
 
 use crate::{
     actions::Actions,
     cleanup::cleanup,
     loading::TextureAssets,
+    pill::Pill,
     unit::{Health, Movement},
     GameState, WorldState,
 };
 
-use self::ui::{setup_ui, update_ui, PlayerUI};
+use self::{ui::{setup_ui, update_ui, PlayerUI}, inventory::Inventory};
 
 mod ui;
+mod inventory;
 
 pub struct PlayerPlugin;
 
@@ -19,6 +21,7 @@ impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
             .add_systems((setup_player, setup_ui).in_schedule(OnEnter(WorldState::Yes)))
+            .add_systems((player_movement, pick_up_pills, update_ui).in_set(OnUpdate(GameState::Playing)))
             .add_systems(
                 (player_movement, update_ui, damage_yourself).in_set(OnUpdate(GameState::Playing)),
             )
@@ -39,11 +42,13 @@ struct PlayerBundle {
     #[bundle]
     sprite_bundle: SpriteBundle,
     // TODO: make an issue in rapier so they register their types
+    rigidbody: RigidBody,
     collider: Collider,
     sensor: Sensor,
     name: Name,
     movement: Movement,
     health: Health,
+    inventory: Inventory,
 }
 
 fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
@@ -53,11 +58,13 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
             texture: textures.player.clone(),
             ..Default::default()
         },
+        rigidbody: RigidBody::KinematicPositionBased,
         collider: Collider::cuboid(27., 63.),
         sensor: Sensor,
         name: Name::new("Player"),
         movement: Movement { speed: 400.0 },
         health: Health::default(),
+        inventory: Inventory::new(3),
     });
 }
 
@@ -121,7 +128,25 @@ fn damage_yourself(
     #[allow(clippy::collapsible_if)]
     if cfg!(debug_assertions) && keyboard.just_pressed(KeyCode::Space) {
         if *player_health.take_damage(10.0) {
-            state.set(GameState::GameOver)
+            state.set(GameState::GameOver);
+        }
+    }
+}
+
+    
+fn pick_up_pills(
+    mut commands: Commands,
+    pill_query: Query<(Entity, &Pill)>,
+    mut player_query: Query<(Entity, &mut Inventory), With<Player>>,
+    rapier_context: Res<RapierContext>,
+) {
+    let (player_entity, mut inventory) = player_query.single_mut();
+
+    for (pill_entity, pill) in pill_query.iter() {
+        if rapier_context.intersection_pair(pill_entity, player_entity) == Some(true)
+            && inventory.add_pill(*pill)
+        {
+            commands.entity(pill_entity).despawn();
         }
     }
 }
