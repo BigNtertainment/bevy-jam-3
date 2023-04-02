@@ -38,4 +38,7 @@ pub struct TextureAssets {
     // TODO: Change this texture
     #[asset(path = "textures/wall.png")]
     pub wall: Handle<Image>,
+    // TODO: Change this texture
+    #[asset(path = "textures/pill.png")]
+    pub pill: Handle<Image>,
 }
