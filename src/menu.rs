@@ -1,6 +1,6 @@
 use crate::cleanup::cleanup;
 use crate::loading::FontAssets;
-use crate::GameState;
+use crate::{GameState, WorldState};
 use bevy::prelude::*;
 
 pub struct MenuPlugin;
@@ -80,7 +80,8 @@ fn setup_menu(
 
 fn click_play_button(
     button_colors: Res<ButtonColors>,
-    mut state: ResMut<NextState<GameState>>,
+    mut game_state: ResMut<NextState<GameState>>,
+    mut world_state: ResMut<NextState<WorldState>>,
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor),
         (Changed<Interaction>, With<Button>),
@@ -89,7 +90,8 @@ fn click_play_button(
     for (interaction, mut color) in &mut interaction_query {
         match *interaction {
             Interaction::Clicked => {
-                state.set(GameState::Playing);
+                game_state.set(GameState::Playing);
+                world_state.set(WorldState::Yes);
             }
             Interaction::Hovered => {
                 *color = button_colors.hovered.into();

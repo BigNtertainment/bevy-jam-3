@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, Sensor};
+use rand::Rng;
 
 use crate::{
     actions::Actions,
     cleanup::cleanup,
     loading::TextureAssets,
     unit::{Health, Movement},
-    GameState,
+    GameState, WorldState,
 };
 
 use self::ui::{setup_ui, update_ui, PlayerUI};
@@ -18,10 +19,10 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
-            .add_systems((setup_player, setup_ui).in_schedule(OnEnter(GameState::Playing)))
-            .add_systems((player_movement, update_ui).in_set(OnUpdate(GameState::Playing)))
+            .add_systems((setup_player, setup_ui).in_schedule(OnEnter(WorldState::Yes)))
+            .add_systems((player_movement, update_ui, damage_yourself).in_set(OnUpdate(GameState::Playing)))
             .add_systems(
-                (cleanup::<Player>, cleanup::<PlayerUI>).in_schedule(OnExit(GameState::Playing)),
+                (cleanup::<Player>, cleanup::<PlayerUI>).in_schedule(OnExit(WorldState::No)),
             );
     }
 }
@@ -106,4 +107,20 @@ fn player_movement(
 
         transform.translation = target;
     }
+}
+
+fn damage_yourself(
+	mut player_query: Query<&mut Health, With<Player>>,
+	keyboard: Res<Input<KeyCode>>,
+	mut state: ResMut<NextState<GameState>>,
+) {
+	let mut player_health = player_query.single_mut();
+
+	#[allow(clippy::collapsible_if)]
+	if cfg!(debug_assertions) && keyboard.just_pressed(KeyCode::Space) {
+		if *player_health.take_damage(rand::thread_rng().gen::<f32>() * 10.0 + 10.0) {
+			state
+				.set(GameState::GameOver)
+		}
+	}
 }
