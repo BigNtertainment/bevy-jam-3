@@ -9,7 +9,7 @@ use crate::{
     GameState,
 };
 
-use self::ui::{setup_ui, PlayerUI, update_ui};
+use self::ui::{setup_ui, update_ui, PlayerUI};
 
 mod ui;
 
@@ -20,7 +20,9 @@ impl Plugin for PlayerPlugin {
         app.register_type::<Player>()
             .add_systems((setup_player, setup_ui).in_schedule(OnEnter(GameState::Playing)))
             .add_systems((player_movement, update_ui).in_set(OnUpdate(GameState::Playing)))
-            .add_systems((cleanup::<Player>, cleanup::<PlayerUI>).in_schedule(OnExit(GameState::Playing)));
+            .add_systems(
+                (cleanup::<Player>, cleanup::<PlayerUI>).in_schedule(OnExit(GameState::Playing)),
+            );
     }
 }
 

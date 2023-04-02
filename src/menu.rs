@@ -54,29 +54,28 @@ fn setup_menu(
         .insert(MainMenuUI)
         .with_children(|parent| {
             parent
-            .spawn(ButtonBundle {
-                style: Style {
-                    size: Size::new(Val::Px(120.0), Val::Px(50.0)),
-                    margin: UiRect::all(Val::Auto),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..Default::default()
-                },
-                background_color: button_colors.normal.into(),
-                ..Default::default()
-            })
-            .with_children(|parent| {
-                parent.spawn(TextBundle::from_section(
-                    "Play",
-                    TextStyle {
-                        font: font_assets.fira_sans.clone(),
-                        font_size: 40.0,
-                        color: Color::rgb(0.9, 0.9, 0.9),
+                .spawn(ButtonBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(120.0), Val::Px(50.0)),
+                        margin: UiRect::all(Val::Auto),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
                     },
-                ));
-            });
+                    background_color: button_colors.normal.into(),
+                    ..Default::default()
+                })
+                .with_children(|parent| {
+                    parent.spawn(TextBundle::from_section(
+                        "Play",
+                        TextStyle {
+                            font: font_assets.fira_sans.clone(),
+                            font_size: 40.0,
+                            color: Color::rgb(0.9, 0.9, 0.9),
+                        },
+                    ));
+                });
         });
-
 }
 
 fn click_play_button(

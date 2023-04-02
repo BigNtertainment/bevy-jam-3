@@ -10,10 +10,7 @@ pub struct PlayerUI;
 #[derive(Component)]
 pub struct HealthUI;
 
-pub fn setup_ui(
-    mut commands: Commands,
-    font_assets: Res<FontAssets>,
-) {
+pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -28,27 +25,26 @@ pub fn setup_ui(
         .insert(PlayerUI)
         .with_children(|parent| {
             parent
-            .spawn(NodeBundle {
-                style: Style {
-
+                .spawn(NodeBundle {
+                    style: Style {
+                        ..Default::default()
+                    },
                     ..Default::default()
-                },
-                ..Default::default()
-            })
-            .insert(Name::new("Heath Container"))
-            .with_children(|parent| {
-                parent
-                .spawn(TextBundle::from_section(
-                    "0/0",
-                     TextStyle {
-                        font: font_assets.space_grotesk.clone(),
-                        font_size: 32.0,
-                        color: Color::WHITE //TODO: Better colour 
-                        }
-                    ))
-                    .insert(HealthUI)
-                    .insert(Name::new("Health UI"));
-            });
+                })
+                .insert(Name::new("Heath Container"))
+                .with_children(|parent| {
+                    parent
+                        .spawn(TextBundle::from_section(
+                            "0/0",
+                            TextStyle {
+                                font: font_assets.space_grotesk.clone(),
+                                font_size: 32.0,
+                                color: Color::WHITE, //TODO: Better colour
+                            },
+                        ))
+                        .insert(HealthUI)
+                        .insert(Name::new("Health UI"));
+                });
         });
 }
 
@@ -57,7 +53,11 @@ pub fn update_ui(
     mut health_ui_query: Query<&mut Text, With<HealthUI>>,
 ) {
     let player_health = player_query.single();
-    
+
     let mut health_ui = health_ui_query.single_mut();
-    health_ui.sections[0].value = format!("{}/{}", player_health.get_health().to_string(), player_health.get_max_health().to_string());
+    health_ui.sections[0].value = format!(
+        "{}/{}",
+        player_health.get_health().to_string(),
+        player_health.get_max_health().to_string()
+    );
 }
