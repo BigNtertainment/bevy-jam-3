@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::Collider;
 
-use crate::{cleanup::cleanup, GameState, loading::TextureAssets};
+use crate::{cleanup::cleanup, loading::TextureAssets, GameState};
 
 pub struct WorldPlugin;
 
@@ -19,14 +19,14 @@ pub struct World;
 fn world_setup(mut commands: Commands, textures: Res<TextureAssets>) {
     commands
         .spawn(SpriteBundle {
-			texture: textures.wall.clone(),
+            texture: textures.wall.clone(),
             transform: Transform {
                 translation: Vec3::new(200., 200., 0.),
                 ..Default::default()
             },
             ..default()
         })
-		.insert(Name::new("Wall"))
+        .insert(Name::new("Wall"))
         .insert(World)
         .insert(Collider::cuboid(32., 32.));
 }

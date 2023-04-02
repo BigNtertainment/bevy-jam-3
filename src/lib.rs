@@ -2,8 +2,8 @@ mod actions;
 mod cleanup;
 mod loading;
 mod menu;
-mod unit;
 mod player;
+mod unit;
 mod world;
 
 use actions::ActionsPlugin;

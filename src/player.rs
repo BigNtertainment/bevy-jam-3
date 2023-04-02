@@ -31,7 +31,7 @@ struct PlayerBundle {
     sprite_bundle: SpriteBundle,
     // TODO: make an issue in rapier so they register their types
     collider: Collider,
-	sensor: Sensor,
+    sensor: Sensor,
     name: Name,
     movement: Movement,
     health: Health,
@@ -45,7 +45,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
             ..Default::default()
         },
         collider: Collider::cuboid(27., 63.),
-		sensor: Sensor,
+        sensor: Sensor,
         name: Name::new("Player"),
         movement: Movement { speed: 400.0 },
         health: Health::default(),
@@ -56,15 +56,15 @@ fn player_movement(
     mut player_query: Query<(&mut Transform, &Collider, &Movement), With<Player>>,
     rapier_context: Res<RapierContext>,
     actions: Res<Actions>,
-	time: Res<Time>,
+    time: Res<Time>,
 ) {
     for (mut transform, collider, movement) in player_query.iter_mut() {
-		let speed = movement.speed * time.delta_seconds();
+        let speed = movement.speed * time.delta_seconds();
 
         let movement_vector = actions.player_movement.normalize_or_zero() * speed;
 
-		let horizontal_vector = Vec2::new(movement_vector.x, 0.);
-		let vertical_vector = Vec2::new(0., movement_vector.y);
+        let horizontal_vector = Vec2::new(movement_vector.x, 0.);
+        let vertical_vector = Vec2::new(0., movement_vector.y);
 
         let horizontal_target = {
             if let Some((_entity, hit)) = rapier_context.cast_shape(
@@ -75,29 +75,29 @@ fn player_movement(
                 1.,
                 QueryFilter::default().exclude_sensors(),
             ) {
-				transform.translation.truncate() + horizontal_vector * (hit.toi - 0.5).max(0.)
-			} else {
-				transform.translation.truncate() + horizontal_vector
+                transform.translation.truncate() + horizontal_vector * (hit.toi - 0.5).max(0.)
+            } else {
+                transform.translation.truncate() + horizontal_vector
             }
         };
 
-		let vertical_target = {
-			if let Some((_entity, hit)) = rapier_context.cast_shape(
-				transform.translation.truncate(),
-				0.,
-				vertical_vector,
-				collider,
-				1.,
-				QueryFilter::default().exclude_sensors(),
-			) {
-				transform.translation.truncate() + vertical_vector * (hit.toi - 0.5).max(0.)
-			} else {
-				transform.translation.truncate() + vertical_vector
-			}
-		};
+        let vertical_target = {
+            if let Some((_entity, hit)) = rapier_context.cast_shape(
+                transform.translation.truncate(),
+                0.,
+                vertical_vector,
+                collider,
+                1.,
+                QueryFilter::default().exclude_sensors(),
+            ) {
+                transform.translation.truncate() + vertical_vector * (hit.toi - 0.5).max(0.)
+            } else {
+                transform.translation.truncate() + vertical_vector
+            }
+        };
 
-		let target = Vec3::new(horizontal_target.x, vertical_target.y, 0.);
+        let target = Vec3::new(horizontal_target.x, vertical_target.y, 0.);
 
-		transform.translation = target;
+        transform.translation = target;
     }
 }
