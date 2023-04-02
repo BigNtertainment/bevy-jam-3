@@ -58,8 +58,8 @@ impl PillEffect {
 #[derive(Component, Reflect, Debug, Copy, Clone, PartialEq)]
 #[reflect(Component)]
 pub struct Pill {
-    main_effect: PillEffect,
-    side_effect: PillEffect,
+    pub main_effect: PillEffect,
+    pub side_effect: PillEffect,
 }
 
 impl Pill {

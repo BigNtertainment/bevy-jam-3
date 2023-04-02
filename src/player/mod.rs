@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, Sensor, RigidBody};
 
 use crate::{
-    actions::Actions,
+    actions::{Actions, BurstActions},
     cleanup::cleanup,
     loading::TextureAssets,
     pill::Pill,
@@ -24,7 +24,7 @@ impl Plugin for PlayerPlugin {
             .register_type::<HealthUI>()
             .register_type::<InventorySlotUI>()
             .add_systems((setup_player, setup_ui).in_schedule(OnEnter(GameState::Playing)))
-            .add_systems((player_movement, pick_up_pills, update_health_ui, update_inventory_ui).in_set(OnUpdate(GameState::Playing)))
+            .add_systems((player_movement, pick_up_pills, consume_pills, update_health_ui, update_inventory_ui).in_set(OnUpdate(GameState::Playing)))
             .add_systems(
                 (cleanup::<Player>, cleanup::<PlayerUI>).in_schedule(OnExit(GameState::Playing)),
             );
@@ -131,6 +131,28 @@ fn pick_up_pills(
             && inventory.add_pill(*pill)
         {
             commands.entity(pill_entity).despawn();
+        }
+    }
+}
+
+pub fn consume_pills(
+    mut player_query: Query<&mut Inventory, With<Player>>,
+    mut burst_actions: EventReader<BurstActions>,
+) {
+    let mut inventory = player_query.single_mut();
+
+    for action in burst_actions.iter() {
+        match action {
+            BurstActions::ConsumePill { index } => {
+                let pill = if let Some(pill) = inventory.consume_pill(*index) {
+                    pill
+                } else {
+                    continue
+                };
+
+                println!("Consumed pill: {:?}, {:?}", pill.main_effect, pill.side_effect);
+            },
+            _ => {}
         }
     }
 }

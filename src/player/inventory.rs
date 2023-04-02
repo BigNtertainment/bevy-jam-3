@@ -27,8 +27,12 @@ impl Inventory {
 		}
 	}
 
-	pub fn remove_pill(&mut self, index: usize) -> Pill {
-		self.pills.remove(index)
+	pub fn consume_pill(&mut self, index: usize) -> Option<Pill> {
+		if index >= self.pills.len() {
+			return None;
+		}
+
+		Some(self.pills.remove(index))
 	}
 
 	pub fn get_pill(&self, index: usize) -> Option<&Pill> {
