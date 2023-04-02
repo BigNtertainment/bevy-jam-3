@@ -31,4 +31,11 @@ pub struct FontAssets {
 pub struct AudioAssets {}
 
 #[derive(AssetCollection, Resource)]
-pub struct TextureAssets {}
+pub struct TextureAssets {
+    // TODO: Change this texture
+    #[asset(path = "textures/player.png")]
+    pub player: Handle<Image>,
+    // TODO: Change this texture
+    #[asset(path = "textures/wall.png")]
+    pub wall: Handle<Image>,
+}

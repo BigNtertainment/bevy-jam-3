@@ -1,15 +1,25 @@
 mod actions;
+mod cleanup;
 mod loading;
 mod menu;
+mod unit;
+mod player;
+mod world;
 
-use crate::actions::ActionsPlugin;
-use crate::loading::LoadingPlugin;
-use crate::menu::MenuPlugin;
-
+use actions::ActionsPlugin;
 use bevy::app::App;
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_rapier2d::{
+    prelude::{NoUserData, RapierPhysicsPlugin},
+    render::RapierDebugRenderPlugin,
+};
+use loading::LoadingPlugin;
+use menu::MenuPlugin;
+use player::PlayerPlugin;
+use world::WorldPlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -31,13 +41,18 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<GameState>()
             .add_plugin(LoadingPlugin)
+            .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
             .add_plugin(MenuPlugin)
-            .add_plugin(ActionsPlugin);
+            .add_plugin(ActionsPlugin)
+            .add_plugin(PlayerPlugin)
+            .add_plugin(WorldPlugin);
 
         #[cfg(debug_assertions)]
         {
             app.add_plugin(FrameTimeDiagnosticsPlugin::default())
-                .add_plugin(LogDiagnosticsPlugin::default());
+                .add_plugin(LogDiagnosticsPlugin::default())
+                .add_plugin(RapierDebugRenderPlugin::default())
+                .add_plugin(WorldInspectorPlugin::default());
         }
     }
 }

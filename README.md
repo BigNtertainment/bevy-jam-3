@@ -2,7 +2,7 @@
 
 A game made for the [Bevy Jam 3](https://itch.io/jam/bevy-jam-3).
 
-For the list of assets and libraries used, see [CREDITS.md](credits/CREDITS.md).
+For the list of assets and libraries used, see [Cargo.toml](Cargo.toml) and [CREDITS.md](credits/CREDITS.md). Thanks to everyone in the Rust and Bevy communities for making this possible!
 
 # License
 
