@@ -1,6 +1,7 @@
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+use bevy_ecs_ldtk::LdtkAsset;
 
 pub struct LoadingPlugin;
 
@@ -14,6 +15,7 @@ impl Plugin for LoadingPlugin {
         )
         .add_collection_to_loading_state::<_, FontAssets>(GameState::Loading)
         .add_collection_to_loading_state::<_, AudioAssets>(GameState::Loading)
+        .add_collection_to_loading_state::<_, LevelAssets>(GameState::Loading)
         .add_collection_to_loading_state::<_, TextureAssets>(GameState::Loading);
     }
 }
@@ -43,4 +45,10 @@ pub struct TextureAssets {
     // TODO: Change this texture
     #[asset(path = "textures/pill.png")]
     pub pill: Handle<Image>,
+}
+
+#[derive(AssetCollection, Resource)]
+pub struct LevelAssets {
+    #[asset(path = "ldtk/level.ldtk")]
+    pub ldtk_handle: Handle<LdtkAsset>,
 }

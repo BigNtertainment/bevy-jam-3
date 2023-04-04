@@ -1,6 +1,7 @@
 mod actions;
 mod cleanup;
 mod enemy;
+mod level;
 mod loading;
 mod menu;
 mod pill;
@@ -10,6 +11,7 @@ mod world;
 
 use actions::ActionsPlugin;
 use bevy::app::App;
+
 #[cfg(debug_assertions)]
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
@@ -18,7 +20,9 @@ use bevy_rapier2d::{
     prelude::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
+
 use enemy::EnemyPlugin;
+use level::LevelPlugin;
 use loading::LoadingPlugin;
 use menu::MenuPlugin;
 use pill::PillPlugin;
@@ -50,6 +54,7 @@ impl Plugin for GamePlugin {
             .add_plugin(ActionsPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(PillPlugin)
+            .add_plugin(LevelPlugin)
             .add_plugin(EnemyPlugin)
             .add_plugin(WorldPlugin);
 
