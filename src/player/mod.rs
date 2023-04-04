@@ -26,7 +26,7 @@ impl Plugin for PlayerPlugin {
                 (player_movement, update_ui, damage_yourself).in_set(OnUpdate(GameState::Playing)),
             )
             .add_system(
-                cleanup::<Player>.in_schedule(OnExit(WorldState::No)),
+                cleanup::<Player>.in_schedule(OnEnter(WorldState::No)),
             )
             .add_system(cleanup::<PlayerUI>.in_schedule(OnExit(GameState::Playing)));
     }
