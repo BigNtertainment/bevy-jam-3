@@ -1,5 +1,6 @@
 mod actions;
 mod cleanup;
+mod enemy;
 mod loading;
 mod menu;
 mod pill;
@@ -17,6 +18,7 @@ use bevy_rapier2d::{
     prelude::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
+use enemy::EnemyPlugin;
 use loading::LoadingPlugin;
 use menu::MenuPlugin;
 use pill::PillPlugin;
@@ -48,6 +50,7 @@ impl Plugin for GamePlugin {
             .add_plugin(ActionsPlugin)
             .add_plugin(PlayerPlugin)
             .add_plugin(PillPlugin)
+            .add_plugin(EnemyPlugin)
             .add_plugin(WorldPlugin);
 
         #[cfg(debug_assertions)]
