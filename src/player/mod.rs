@@ -1,29 +1,44 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, Sensor, RigidBody};
+use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, RigidBody, Sensor};
 
 use crate::{
-    actions::Actions,
+    actions::{Actions, BurstActions},
     cleanup::cleanup,
     loading::TextureAssets,
-    pill::Pill,
+    pill::{Pill, PillEffect},
     unit::{Health, Movement},
     GameState, WorldState,
 };
 
-use self::{ui::{setup_ui, update_ui, PlayerUI}, inventory::Inventory};
+use self::{
+    effect::{Dizziness, EffectPlugin, Invincibility, Invisibility, MovementBoost},
+    inventory::Inventory,
+    ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
+};
 
-mod ui;
+mod effect;
 mod inventory;
+mod ui;
 
 pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
+            .register_type::<PlayerUI>()
+            .register_type::<HealthUI>()
+            .register_type::<InventorySlotUI>()
             .add_systems((setup_player, setup_ui).in_schedule(OnEnter(WorldState::Yes)))
-            .add_systems((player_movement, pick_up_pills, update_ui).in_set(OnUpdate(GameState::Playing)))
             .add_systems(
-                (player_movement, update_ui, damage_yourself).in_set(OnUpdate(GameState::Playing)),
+                (
+                    player_movement,
+                    pick_up_pills,
+                    consume_pills.pipe(execute_pill_effects),
+                    update_health_ui,
+                    update_inventory_ui,
+                    damage_yourself,
+                )
+                    .in_set(OnUpdate(GameState::Playing)),
             )
             .add_system(
                 cleanup::<Player>.in_schedule(OnExit(WorldState::No)),
@@ -56,6 +71,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
         player: Player::default(),
         sprite_bundle: SpriteBundle {
             texture: textures.player.clone(),
+            transform: Transform::from_xyz(0., 0., 5.),
             ..Default::default()
         },
         rigidbody: RigidBody::KinematicPositionBased,
@@ -69,15 +85,31 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
 }
 
 fn player_movement(
-    mut player_query: Query<(&mut Transform, &Collider, &Movement), With<Player>>,
+    mut player_query: Query<
+        (
+            &mut Transform,
+            &Collider,
+            &Movement,
+            Option<&MovementBoost>,
+            Option<&Dizziness>,
+        ),
+        With<Player>,
+    >,
     rapier_context: Res<RapierContext>,
     actions: Res<Actions>,
     time: Res<Time>,
 ) {
-    for (mut transform, collider, movement) in player_query.iter_mut() {
+    for (mut transform, collider, movement, movement_boost, dizziness) in player_query.iter_mut() {
         let speed = movement.speed * time.delta_seconds();
 
-        let movement_vector = actions.player_movement.normalize_or_zero() * speed;
+        let movement_vector = actions.player_movement.normalize_or_zero()
+            * speed
+            * if let Some(movement_boost) = movement_boost {
+                movement_boost.multiplier
+            } else {
+                1.0
+            }
+            * if dizziness.is_some() { -1.0 } else { 1.0 };
 
         let horizontal_vector = Vec2::new(movement_vector.x, 0.);
         let vertical_vector = Vec2::new(0., movement_vector.y);
@@ -91,7 +123,7 @@ fn player_movement(
                 1.,
                 QueryFilter::default().exclude_sensors(),
             ) {
-                transform.translation.truncate() + horizontal_vector * (hit.toi - 0.5).max(0.)
+                transform.translation.truncate() + horizontal_vector * (hit.toi - 1.).max(0.)
             } else {
                 transform.translation.truncate() + horizontal_vector
             }
@@ -106,7 +138,7 @@ fn player_movement(
                 1.,
                 QueryFilter::default().exclude_sensors(),
             ) {
-                transform.translation.truncate() + vertical_vector * (hit.toi - 0.5).max(0.)
+                transform.translation.truncate() + vertical_vector * (hit.toi - 1.).max(0.)
             } else {
                 transform.translation.truncate() + vertical_vector
             }
@@ -147,6 +179,80 @@ fn pick_up_pills(
             && inventory.add_pill(*pill)
         {
             commands.entity(pill_entity).despawn();
+        }
+    }
+}
+
+pub fn consume_pills(
+    mut player_query: Query<&mut Inventory, With<Player>>,
+    mut burst_actions: EventReader<BurstActions>,
+) -> Vec<Pill> {
+    let mut inventory = player_query.single_mut();
+
+    let mut pills = Vec::new();
+
+    for action in burst_actions.iter() {
+        match action {
+            BurstActions::ConsumePill { index } => {
+                let pill = if let Some(pill) = inventory.consume_pill(*index) {
+                    pill
+                } else {
+                    continue;
+                };
+
+                pills.push(pill);
+            }
+            _ => {}
+        }
+    }
+
+    pills
+}
+
+pub fn execute_pill_effects(
+    In(pills): In<Vec<Pill>>,
+    mut commands: Commands,
+    mut player_query: Query<(Entity, &mut Health), With<Player>>,
+) {
+    let (player_entity, mut player_health) = player_query.single_mut();
+
+    for pill in pills {
+        for effect in [pill.main_effect, pill.side_effect] {
+            match effect {
+                PillEffect::Heal { amount } => {
+                    player_health.heal(amount);
+                }
+                PillEffect::Speed { amount, duration } => {
+                    commands.entity(player_entity).insert(MovementBoost {
+                        timer: Timer::new(duration, TimerMode::Once),
+                        multiplier: amount,
+                    });
+                }
+                PillEffect::ToxicFart => {
+                    // todo!();
+                }
+                PillEffect::Invisibility { duration } => {
+                    commands.entity(player_entity).insert(Invisibility {
+                        timer: Timer::new(duration, TimerMode::Once),
+                    });
+                }
+                PillEffect::Invincibility { duration } => {
+                    commands.entity(player_entity).insert(Invincibility {
+                        timer: Timer::new(duration, TimerMode::Once),
+                    });
+                }
+                PillEffect::Blindness { duration: _ } => {
+                    // todo!(); // Shader :)
+                }
+                PillEffect::Dizziness { duration } => {
+                    commands.entity(player_entity).insert(Dizziness {
+                        timer: Timer::new(duration, TimerMode::Once),
+                    });
+                }
+                PillEffect::Sneeze => {
+                    // todo!();
+                }
+            }
         }
     }
 }

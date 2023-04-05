@@ -39,11 +39,7 @@ impl Health {
     }
 
     pub fn heal(&mut self, amount: f32) {
-        self.health += amount;
-
-        if self.health > self.max_health {
-            self.health = self.max_health;
-        }
+        self.health = (self.health + amount).clamp(1.0, self.max_health);
     }
 
     pub fn get_health(&self) -> f32 {

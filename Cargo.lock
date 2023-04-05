@@ -1602,10 +1602,19 @@ dependencies = [
  "bevy_console",
  "bevy_kira_audio",
  "bevy_rapier2d",
+ "drug_test_proc_macros",
  "embed-resource",
  "image",
  "rand",
  "winit",
+]
+
+[[package]]
+name = "drug_test_proc_macros"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn 2.0.13",
 ]
 
 [[package]]
