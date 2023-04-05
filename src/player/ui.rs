@@ -21,6 +21,10 @@ pub struct InventorySlotUI {
     pub index: usize,
 }
 
+#[derive(Component, Reflect, Clone, Debug, Default, PartialEq)]
+#[reflect(Component)]
+pub struct EffectsUI;
+
 pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
     commands
         .spawn(NodeBundle {
@@ -187,6 +191,17 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
                                 });
                         });
                 });
+
+                parent.spawn(NodeBundle {
+                    style: Style {
+                        margin: UiRect::top(Val::Px(20.0)),
+                        flex_direction: FlexDirection::Column,
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                })
+                .insert(EffectsUI)
+                .insert(Name::new("Effect Bars Container"));
         });
 }
 
