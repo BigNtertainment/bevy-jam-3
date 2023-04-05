@@ -8,7 +8,7 @@ pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(world_setup.in_schedule(OnEnter(WorldState::Yes)))
-            .add_system(cleanup::<World>.in_schedule(OnExit(WorldState::No)));
+            .add_system(cleanup::<World>.in_schedule(OnExit(WorldState::Yes)));
     }
 }
 
