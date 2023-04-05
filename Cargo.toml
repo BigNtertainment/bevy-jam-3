@@ -41,5 +41,7 @@ bevy_rapier2d = "0.21.0"
 bevy_console = "0.7.0"
 bevy-inspector-egui = "0.18.3"
 
+drug_test_proc_macros = { path = "./drug-test-proc-macros" }
+
 [build-dependencies]
 embed-resource = "1.4"

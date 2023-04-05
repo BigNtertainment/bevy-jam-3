@@ -20,20 +20,23 @@ impl Plugin for PillPlugin {
 #[derive(Reflect, Debug, Copy, Clone, PartialEq)]
 pub enum PillEffect {
     Heal { amount: f32 },
-    Speed { amount: f32 },
+    Speed { amount: f32, duration: Duration },
     ToxicFart,
     Invisibility { duration: Duration },
     Invincibility { duration: Duration },
     Sneeze,
-    Dizziness,
-    Blindness,
+    Dizziness { duration: Duration },
+    Blindness { duration: Duration },
 }
 
 impl PillEffect {
     pub fn positive() -> Vec<Self> {
         vec![
             Self::Heal { amount: 10. },
-            Self::Speed { amount: 1.5 },
+            Self::Speed {
+                amount: 1.5,
+                duration: Duration::from_secs(5),
+            },
             Self::ToxicFart,
             Self::Invisibility {
                 duration: Duration::from_secs(3),
@@ -47,10 +50,17 @@ impl PillEffect {
     pub fn negative() -> Vec<Self> {
         vec![
             Self::Heal { amount: -10. },
-            Self::Speed { amount: 0.5 },
+            Self::Speed {
+                amount: 0.5,
+                duration: Duration::from_secs(5),
+            },
             Self::Sneeze,
-            Self::Dizziness,
-            Self::Blindness,
+            Self::Dizziness {
+                duration: Duration::from_secs(5),
+            },
+            Self::Blindness {
+                duration: Duration::from_secs(5),
+            },
         ]
     }
 }
@@ -64,11 +74,11 @@ pub struct Pill {
 
 impl Pill {
     pub fn new(main_effect: PillEffect) -> Self {
-		// Random negative effect that isn't the same category as the main effect
+        // Random negative effect that isn't the same category as the main effect
         let side_effect = PillEffect::negative()
             .iter()
             .filter(|effect| {
-				// Checking so they're not the same enum variant
+                // Checking so they're not the same enum variant
                 std::mem::discriminant(*effect) != std::mem::discriminant(&main_effect)
             })
             .choose(&mut rand::thread_rng())
@@ -81,14 +91,14 @@ impl Pill {
         }
     }
 
-	pub fn get_texture(&self, textures: &TextureAssets) -> Handle<Image> {
+    pub fn get_texture(&self, textures: &TextureAssets) -> Handle<Image> {
         match self.main_effect {
-			PillEffect::Heal { .. } => textures.health_pill.clone(),
-			PillEffect::Speed { .. } => textures.speed_pill.clone(),
+            PillEffect::Heal { .. } => textures.health_pill.clone(),
+            PillEffect::Speed { .. } => textures.speed_pill.clone(),
             PillEffect::ToxicFart => textures.toxic_fart_pill.clone(),
-			PillEffect::Invisibility { .. } => textures.invisibility_pill.clone(),
-			PillEffect::Invincibility { .. } => textures.invincibility_pill.clone(),
-			_ => default()
+            PillEffect::Invisibility { .. } => textures.invisibility_pill.clone(),
+            PillEffect::Invincibility { .. } => textures.invincibility_pill.clone(),
+            _ => default(),
         }
     }
 }
@@ -166,7 +176,10 @@ fn pill_setup(mut commands: Commands) {
     });
 }
 
-fn update_pill_texture(mut query: Query<(&Pill, &mut Handle<Image>)>, textures: Res<TextureAssets>) {
+fn update_pill_texture(
+    mut query: Query<(&Pill, &mut Handle<Image>)>,
+    textures: Res<TextureAssets>,
+) {
     for (pill, mut texture) in query.iter_mut() {
         *texture = pill.get_texture(&textures);
     }

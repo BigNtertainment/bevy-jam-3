@@ -13,7 +13,9 @@ impl Plugin for ActionsPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<Actions>()
             .add_event::<BurstActions>()
-            .add_systems((set_movement_actions, register_burst_actions).in_set(OnUpdate(GameState::Playing)));
+            .add_systems(
+                (set_movement_actions, register_burst_actions).in_set(OnUpdate(GameState::Playing)),
+            );
     }
 }
 
