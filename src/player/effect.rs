@@ -55,9 +55,9 @@ pub struct MovementBoost {
 impl EffectVisuals for MovementBoost {
     fn get_color(&self) -> Color {
         if self.multiplier > 1.0 {
-            Color::hex("e7eb1a").unwrap()
+            Color::hex("eac516").unwrap()
         } else {
-            Color::hex("c9851e").unwrap()
+            Color::hex("daa11d").unwrap()
         }
     }
 
@@ -78,7 +78,7 @@ pub struct Invisibility {
 
 impl EffectVisuals for Invisibility {
     fn get_color(&self) -> Color {
-        Color::hex("0bc8d3").unwrap()
+        Color::hex("00ecc7").unwrap()
     }
 
     fn get_name(&self) -> String {
@@ -94,7 +94,7 @@ pub struct Invincibility {
 
 impl EffectVisuals for Invincibility {
     fn get_color(&self) -> Color {
-        Color::hex("810de4").unwrap()
+        Color::hex("dfc1ff").unwrap()
     }
 
     fn get_name(&self) -> String {
