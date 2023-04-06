@@ -108,7 +108,7 @@ pub struct Dizziness {
 
 impl EffectVisuals for Dizziness {
     fn get_color(&self) -> Color {
-        Color::hsl(self.timer.percent(), 1.0, 0.75)
+        Color::hsl(self.timer.percent() * 360., 1.0, 0.5)
     }
 
     fn get_name(&self) -> String {
@@ -217,11 +217,12 @@ fn setup_effect_ui<Effect: Temporary + Component + EffectVisuals>(
 
 fn update_effect_ui<Effect: Temporary + Component + EffectVisuals>(
     mut effect_query: Query<&mut Effect, With<Player>>,
-    mut effect_bar_query: Query<&mut Style, With<EffectBarMarker<Effect>>>,
+    mut effect_bar_query: Query<(&mut Style, &mut BackgroundColor), With<EffectBarMarker<Effect>>>,
 ) {
     for mut effect in effect_query.iter_mut() {
-        for mut style in effect_bar_query.iter_mut() {
+        for (mut style, mut bg_color) in effect_bar_query.iter_mut() {
             style.size.width = Val::Percent((1. - effect.get_timer().percent()) * 100.0);
+            bg_color.0 = effect.get_color().into();
         }
     }
 }

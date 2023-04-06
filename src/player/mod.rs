@@ -11,7 +11,7 @@ use crate::{
 };
 
 use self::{
-    effect::{Dizziness, Invincibility, Invisibility, MovementBoost},
+    effect::{Dizziness, Invincibility, Invisibility, MovementBoost, EffectPlugin},
     inventory::Inventory,
     ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
 };
@@ -28,6 +28,7 @@ impl Plugin for PlayerPlugin {
             .register_type::<PlayerUI>()
             .register_type::<HealthUI>()
             .register_type::<InventorySlotUI>()
+            .add_plugin(EffectPlugin)
             .add_systems((setup_player, setup_ui).in_schedule(OnEnter(WorldState::Yes)))
             .add_systems(
                 (
