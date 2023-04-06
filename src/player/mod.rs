@@ -40,9 +40,7 @@ impl Plugin for PlayerPlugin {
                 )
                     .in_set(OnUpdate(GameState::Playing)),
             )
-            .add_system(
-                cleanup::<Player>.in_schedule(OnEnter(WorldState::No)),
-            )
+            .add_system(cleanup::<Player>.in_schedule(OnEnter(WorldState::No)))
             .add_system(cleanup::<PlayerUI>.in_schedule(OnExit(GameState::Playing)));
     }
 }
@@ -165,7 +163,6 @@ fn damage_yourself(
     }
 }
 
-    
 fn pick_up_pills(
     mut commands: Commands,
     pill_query: Query<(Entity, &Pill)>,

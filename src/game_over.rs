@@ -1,15 +1,15 @@
 use bevy::prelude::*;
 use bevy_console::PrintConsoleLine;
 
-use crate::{cleanup::cleanup, GameState, loading::FontAssets, WorldState};
+use crate::{cleanup::cleanup, loading::FontAssets, GameState, WorldState};
 
 pub struct GameOverPlugin;
 
 impl Plugin for GameOverPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(setup_go_ui.in_schedule(OnEnter(GameState::GameOver)))
-        .add_system(click_main_menu_button.in_set(OnUpdate(GameState::GameOver)))
-        .add_system(cleanup::<GameOverUI>.in_schedule(OnExit(GameState::GameOver)));
+            .add_system(click_main_menu_button.in_set(OnUpdate(GameState::GameOver)))
+            .add_system(cleanup::<GameOverUI>.in_schedule(OnExit(GameState::GameOver)));
     }
 }
 
@@ -39,29 +39,29 @@ pub fn setup_go_ui(
         .insert(GameOverUI)
         .with_children(|parent| {
             parent
-            .spawn(ButtonBundle {
-                style: Style {
-                    size: Size::new(Val::Px(200.0), Val::Px(50.0)),
-                    margin: UiRect::all(Val::Auto),
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..Default::default()
-                },
-                background_color: Color::BLACK.into(),
-                ..Default::default()
-            })
-            .insert(Name::new("Main Menu Button"))
-            .insert(MainMenuButton)
-            .with_children(|parent| {
-                parent.spawn(TextBundle::from_section(
-                    "Main Menu",
-                    TextStyle {
-                        font: font_assets.space_grotesk.clone(),
-                        font_size: 40.0,
-                        color: Color::WHITE.into(),
+                .spawn(ButtonBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                        margin: UiRect::all(Val::Auto),
+                        justify_content: JustifyContent::Center,
+                        align_items: AlignItems::Center,
+                        ..Default::default()
                     },
-                ));
-            });
+                    background_color: Color::BLACK.into(),
+                    ..Default::default()
+                })
+                .insert(Name::new("Main Menu Button"))
+                .insert(MainMenuButton)
+                .with_children(|parent| {
+                    parent.spawn(TextBundle::from_section(
+                        "Main Menu",
+                        TextStyle {
+                            font: font_assets.space_grotesk.clone(),
+                            font_size: 40.0,
+                            color: Color::WHITE.into(),
+                        },
+                    ));
+                });
         });
 }
 
@@ -80,7 +80,13 @@ fn click_main_menu_button(
                 world_state.set(WorldState::No);
             }
             Interaction::Hovered => {
-                *color = Color::Rgba { red: 0.8, green: 0.8, blue: 0.8, alpha: 0.8 }.into();
+                *color = Color::Rgba {
+                    red: 0.8,
+                    green: 0.8,
+                    blue: 0.8,
+                    alpha: 0.8,
+                }
+                .into();
             }
             Interaction::None => {
                 *color = Color::BLACK.into();
