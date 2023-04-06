@@ -192,7 +192,8 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
                         });
                 });
 
-                parent.spawn(NodeBundle {
+            parent
+                .spawn(NodeBundle {
                     style: Style {
                         margin: UiRect::top(Val::Px(20.0)),
                         flex_direction: FlexDirection::Column,

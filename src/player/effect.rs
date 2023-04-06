@@ -38,7 +38,7 @@ fn effect_systems<Effect: Temporary + Component + EffectVisuals>() -> SystemConf
         update_effect::<Effect>,
         setup_effect_ui::<Effect>,
         update_effect_ui::<Effect>,
-		remove_effect_ui::<Effect>
+        remove_effect_ui::<Effect>,
     )
         .in_set(OnUpdate(GameState::Playing))
 }
@@ -173,13 +173,13 @@ fn setup_effect_ui<Effect: Temporary + Component + EffectVisuals>(
                         align_items: AlignItems::Center,
                         size: Size::new(Val::Px(200.0), Val::Px(40.0)),
                         padding: UiRect::all(Val::Px(7.0)),
-						margin: UiRect::bottom(Val::Px(10.)),
+                        margin: UiRect::bottom(Val::Px(10.)),
                         ..Default::default()
                     },
-					background_color: Color::BLACK.into(),
+                    background_color: Color::BLACK.into(),
                     ..default()
                 })
-				.insert(EffectBarContainerMarker::<Effect>::new())
+                .insert(EffectBarContainerMarker::<Effect>::new())
                 .insert(Name::new("Effect Bar Border"))
                 .with_children(|parent| {
                     parent
@@ -219,11 +219,11 @@ fn update_effect_ui<Effect: Temporary + Component + EffectVisuals>(
     mut effect_query: Query<&mut Effect, With<Player>>,
     mut effect_bar_query: Query<&mut Style, With<EffectBarMarker<Effect>>>,
 ) {
-	for mut effect in effect_query.iter_mut() {
-		for mut style in effect_bar_query.iter_mut() {
-			style.size.width = Val::Percent((1. - effect.get_timer().percent()) * 100.0);
-		}
-	}
+    for mut effect in effect_query.iter_mut() {
+        for mut style in effect_bar_query.iter_mut() {
+            style.size.width = Val::Percent((1. - effect.get_timer().percent()) * 100.0);
+        }
+    }
 }
 
 fn remove_effect_ui<Effect: Temporary + Component + EffectVisuals>(

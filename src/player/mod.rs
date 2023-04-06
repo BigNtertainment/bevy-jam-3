@@ -7,11 +7,11 @@ use crate::{
     loading::TextureAssets,
     pill::{Pill, PillEffect},
     unit::{Health, Movement},
-    GameState,
+    GameState, WorldState,
 };
 
 use self::{
-    effect::{Dizziness, EffectPlugin, Invincibility, Invisibility, MovementBoost},
+    effect::{Dizziness, Invincibility, Invisibility, MovementBoost},
     inventory::Inventory,
     ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
 };
@@ -28,7 +28,7 @@ impl Plugin for PlayerPlugin {
             .register_type::<PlayerUI>()
             .register_type::<HealthUI>()
             .register_type::<InventorySlotUI>()
-            .add_systems((setup_player, setup_ui).in_schedule(OnEnter(GameState::Playing)))
+            .add_systems((setup_player, setup_ui).in_schedule(OnEnter(WorldState::Yes)))
             .add_systems(
                 (
                     player_movement,
@@ -36,13 +36,12 @@ impl Plugin for PlayerPlugin {
                     consume_pills.pipe(execute_pill_effects),
                     update_health_ui,
                     update_inventory_ui,
+                    damage_yourself,
                 )
                     .in_set(OnUpdate(GameState::Playing)),
             )
-            .add_systems(
-                (cleanup::<Player>, cleanup::<PlayerUI>).in_schedule(OnExit(GameState::Playing)),
-            )
-            .add_plugin(EffectPlugin);
+            .add_system(cleanup::<Player>.in_schedule(OnEnter(WorldState::No)))
+            .add_system(cleanup::<PlayerUI>.in_schedule(OnExit(GameState::Playing)));
     }
 }
 
@@ -146,6 +145,21 @@ fn player_movement(
         let target = Vec3::new(horizontal_target.x, vertical_target.y, 0.);
 
         transform.translation = target;
+    }
+}
+
+fn damage_yourself(
+    mut player_query: Query<&mut Health, With<Player>>,
+    keyboard: Res<Input<KeyCode>>,
+    mut state: ResMut<NextState<GameState>>,
+) {
+    let mut player_health = player_query.single_mut();
+
+    #[allow(clippy::collapsible_if)]
+    if cfg!(debug_assertions) && keyboard.just_pressed(KeyCode::Space) {
+        if *player_health.take_damage(10.0) {
+            state.set(GameState::GameOver);
+        }
     }
 }
 

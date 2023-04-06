@@ -1,6 +1,7 @@
 mod actions;
 mod cleanup;
 mod enemy;
+mod game_over;
 mod loading;
 mod menu;
 mod pill;
@@ -19,6 +20,7 @@ use bevy_rapier2d::{
     render::RapierDebugRenderPlugin,
 };
 use enemy::EnemyPlugin;
+use game_over::GameOverPlugin;
 use loading::LoadingPlugin;
 use menu::MenuPlugin;
 use pill::PillPlugin;
@@ -37,6 +39,17 @@ enum GameState {
     Playing,
     // Here the menu is drawn and waiting for player interaction
     Menu,
+    // Here the menu is drawn after player died but
+    GameOver,
+}
+
+#[derive(States, Default, Clone, Eq, PartialEq, Debug, Hash)]
+enum WorldState {
+    // World is not rendered
+    #[default]
+    No,
+    // World is rendered
+    Yes,
 }
 
 pub struct GamePlugin;
@@ -44,11 +57,13 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_state::<GameState>()
+            .add_state::<WorldState>()
             .add_plugin(LoadingPlugin)
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(PlayerPlugin)
+            .add_plugin(GameOverPlugin)
             .add_plugin(PillPlugin)
             .add_plugin(EnemyPlugin)
             .add_plugin(WorldPlugin);

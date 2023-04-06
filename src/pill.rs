@@ -4,16 +4,16 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::{ActiveCollisionTypes, Collider, RigidBody, Sensor};
 use rand::seq::IteratorRandom;
 
-use crate::{cleanup::cleanup, loading::TextureAssets, GameState};
+use crate::{cleanup::cleanup, loading::TextureAssets, GameState, WorldState};
 
 pub struct PillPlugin;
 
 impl Plugin for PillPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Pill>()
-            .add_system(pill_setup.in_schedule(OnEnter(GameState::Playing)))
+            .add_system(pill_setup.in_schedule(OnEnter(WorldState::Yes)))
             .add_system(update_pill_texture.in_set(OnUpdate(GameState::Playing)))
-            .add_system(cleanup::<Pill>.in_schedule(OnExit(GameState::Playing)));
+            .add_system(cleanup::<Pill>.in_schedule(OnExit(WorldState::Yes)));
     }
 }
 
