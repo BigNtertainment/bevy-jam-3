@@ -42,6 +42,8 @@ bevy_console = "0.7.0"
 bevy-inspector-egui = "0.18.3"
 
 drug_test_proc_macros = { path = "./drug-test-proc-macros" }
+bevy_pathmesh = "0.4.0"
+polyanya = "0.3.0"
 
 [build-dependencies]
 embed-resource = "1.4"

@@ -60,3 +60,13 @@ impl Health {
 pub struct Movement {
     pub speed: f32,
 }
+
+#[derive(Default, Reflect, Component, Copy, Clone, Debug, PartialEq, Eq)]
+#[reflect(Component)]
+pub enum Direction {
+    #[default]
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+}
