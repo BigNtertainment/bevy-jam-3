@@ -11,7 +11,7 @@ use crate::{
 };
 
 use self::{
-    effect::{Dizziness, Invincibility, Invisibility, MovementBoost, EffectPlugin},
+    effect::{Dizziness, Invincibility, Invisibility, MovementBoost, EffectPlugin, Blindness},
     inventory::Inventory,
     ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
 };
@@ -239,8 +239,10 @@ pub fn execute_pill_effects(
                         timer: Timer::new(duration, TimerMode::Once),
                     });
                 }
-                PillEffect::Blindness { duration: _ } => {
-                    // todo!(); // Shader :)
+                PillEffect::Blindness { duration } => {
+                    commands.entity(player_entity).insert(Blindness {
+                        timer: Timer::new(duration, TimerMode::Once),
+                    });
                 }
                 PillEffect::Dizziness { duration } => {
                     commands.entity(player_entity).insert(Dizziness {

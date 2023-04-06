@@ -15,10 +15,12 @@ impl Plugin for EffectPlugin {
             .register_type::<Invisibility>()
             .register_type::<Invincibility>()
             .register_type::<Dizziness>()
+            .register_type::<Blindness>()
             .add_systems(effect_systems::<MovementBoost>())
             .add_systems(effect_systems::<Invisibility>())
             .add_systems(effect_systems::<Invincibility>())
             .add_systems(effect_systems::<Dizziness>())
+            .add_systems(effect_systems::<Blindness>())
             .add_system(invisibility_vfx.in_set(OnUpdate(GameState::Playing)))
             .add_system(reset_invisibility_vfx.in_set(OnUpdate(GameState::Playing)));
     }
@@ -113,6 +115,22 @@ impl EffectVisuals for Dizziness {
 
     fn get_name(&self) -> String {
         "Dizziness".to_string()
+    }
+}
+
+#[derive(Reflect, Component, Clone, Default, Debug, Temporary)]
+#[reflect(Component)]
+pub struct Blindness {
+    pub timer: Timer,
+}
+
+impl EffectVisuals for Blindness {
+    fn get_color(&self) -> Color {
+        Color::hex("ffffff").unwrap()
+    }
+
+    fn get_name(&self) -> String {
+        "Blindness".to_string()
     }
 }
 
