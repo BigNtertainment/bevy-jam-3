@@ -59,6 +59,7 @@ impl Health {
 #[reflect(Component)]
 pub struct Movement {
     pub speed: f32,
+    pub running_speed: f32,
 }
 
 #[derive(Default, Reflect, Component, Copy, Clone, Debug, PartialEq, Eq)]

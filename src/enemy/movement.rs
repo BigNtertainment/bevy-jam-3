@@ -83,9 +83,9 @@ impl EnemyMovementType {
     }
 }
 
-fn enemy_movement(
+pub fn enemy_movement(
     mut enemy_query: Query<(
-        &mut EnemyState,
+        &EnemyState,
         &mut EnemyMovementTarget,
         &mut EnemyMovementType,
         &Movement,
@@ -99,7 +99,7 @@ fn enemy_movement(
     let nav_mesh = nav_mesh_query.single();
 
     for (
-        mut enemy_state,
+        enemy_state,
         mut enemy_movement_target,
         mut enemy_movement_type,
         enemy_movement,
@@ -121,17 +121,16 @@ fn enemy_movement(
                 }
             }
             EnemyState::Alert { target } => {
-                if matches!(*enemy_state, EnemyState::Alert { .. })
-                    && enemy_movement_target.path.is_empty()
-                {
-                    *enemy_state = EnemyState::Idle;
-
-                    continue;
+                if let Some(path_target) = enemy_movement_target.path.last() {
+                    if *path_target != target {
+                        Some(target)
+                    } else {
+                        None
+                    }
+                } else {
+                    Some(target)
                 }
-
-                Some(target)
-            }
-            EnemyState::Attacking => continue,
+            },
         };
 
         if let Some(target) = new_target {
@@ -153,8 +152,14 @@ fn enemy_movement(
         if let Some(target) = enemy_movement_target.path.get(0) {
             let movement_vector = *target - enemy_transform.translation.truncate();
 
+            let speed = if *enemy_state == EnemyState::Idle {
+                enemy_movement.speed
+            } else {
+                enemy_movement.running_speed
+            };
+
             let calc_movement_vector =
-                movement_vector.normalize_or_zero() * enemy_movement.speed * time.delta_seconds();
+                movement_vector.normalize_or_zero() * speed * time.delta_seconds();
 
             let movement_vector = if calc_movement_vector.length() > movement_vector.length() {
                 movement_vector

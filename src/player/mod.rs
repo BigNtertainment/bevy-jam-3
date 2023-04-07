@@ -75,7 +75,10 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
         rigidbody: RigidBody::KinematicPositionBased,
         collider: Collider::cuboid(27., 63.),
         name: Name::new("Player"),
-        movement: Movement { speed: 400.0 },
+        movement: Movement {
+            speed: 200.0,
+            running_speed: 250.0,
+        },
         health: Health::default(),
         inventory: Inventory::new(3),
     });

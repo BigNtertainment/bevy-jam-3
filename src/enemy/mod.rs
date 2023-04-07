@@ -5,14 +5,16 @@ use crate::{
     cleanup::cleanup,
     loading::TextureAssets,
     unit::{Direction, Movement},
-    GameState,
+    GameState, WorldState,
 };
 
 use self::{
+    attack::{EnemyAttackPlugin, EnemyAttackTimer},
     movement::{EnemyMovementPlugin, EnemyMovementTarget, EnemyMovementType},
     sight::EnemySightPlugin,
 };
 
+mod attack;
 mod movement;
 mod sight;
 
@@ -20,11 +22,13 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(EnemyMovementPlugin)
+        app.register_type::<EnemyState>()
+            .add_plugin(EnemyMovementPlugin)
             .add_plugin(EnemySightPlugin)
+            .add_plugin(EnemyAttackPlugin)
             .add_system(debug_spawn.in_schedule(OnEnter(GameState::Playing)))
             .add_system(update_sprites.in_set(OnUpdate(GameState::Playing)))
-            .add_system(cleanup::<EnemyState>.in_schedule(OnExit(GameState::Playing)));
+            .add_system(cleanup::<EnemyState>.in_schedule(OnExit(WorldState::Yes)));
     }
 }
 
@@ -36,7 +40,6 @@ pub enum EnemyState {
     Alert {
         target: Vec2,
     },
-    Attacking,
 }
 
 #[derive(Bundle)]
@@ -51,13 +54,17 @@ pub struct EnemyBundle {
     state: EnemyState,
     movement_type: EnemyMovementType,
     movement_target: EnemyMovementTarget,
+    attack_timer: EnemyAttackTimer,
 }
 
 impl Default for EnemyBundle {
     fn default() -> Self {
         Self {
             sprite_bundle: SpriteBundle::default(),
-            movement: Movement { speed: 100. },
+            movement: Movement {
+                speed: 100.,
+                running_speed: 215.,
+            },
             direction: Direction::default(),
             rigidbody: RigidBody::KinematicPositionBased,
             collider: Collider::cuboid(32., 128.),
@@ -65,6 +72,7 @@ impl Default for EnemyBundle {
             state: EnemyState::default(),
             movement_type: EnemyMovementType::Static { target: Vec2::ZERO },
             movement_target: EnemyMovementTarget::default(),
+            attack_timer: EnemyAttackTimer(Timer::from_seconds(1., TimerMode::Repeating)),
         }
     }
 }
@@ -117,7 +125,10 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
                 current: Vec2::new(150., 150.),
                 wait_timer: Timer::from_seconds(3., TimerMode::Repeating),
             },
-            movement: Movement { speed: 50. },
+            movement: Movement {
+                speed: 50.,
+                running_speed: 215.,
+            },
             ..default()
         })
         .insert(Name::new("Enemy #3"));

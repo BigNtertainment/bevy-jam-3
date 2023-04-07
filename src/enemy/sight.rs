@@ -7,17 +7,21 @@ use crate::{
     GameState,
 };
 
-use super::EnemyState;
+use super::{movement::enemy_movement, EnemyState};
 
 pub struct EnemySightPlugin;
 
 impl Plugin for EnemySightPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(see_player.in_set(OnUpdate(GameState::Playing)));
+        app.add_system(
+            see_player
+                .after(enemy_movement)
+                .in_set(OnUpdate(GameState::Playing)),
+        );
     }
 }
 
-fn see_player(
+pub fn see_player(
     mut enemy_query: Query<(&mut EnemyState, &Transform, &Direction)>,
     player_query: Query<(Entity, &Transform), With<Player>>,
     rapier_context: Res<RapierContext>,
@@ -36,18 +40,31 @@ fn see_player(
             }
         }
 
-        if let Some((entity, _)) = rapier_context.cast_ray(
-            enemy_transform.translation.truncate(),
-            to_player_vector.normalize(),
-            35000.0,
-            true,
-            QueryFilter::new().exclude_sensors(),
-        ) {
-            if entity == player_entity {
-                *enemy_state = EnemyState::Alert {
-                    target: player_transform.translation.truncate(),
-                };
-            }
+        let enemy_sight = 35000.0;
+
+        let see_player = player_transform
+            .translation
+            .truncate()
+            .distance(enemy_transform.translation.truncate())
+            < 5.
+            || if let Some((entity, _)) = rapier_context.cast_ray(
+                enemy_transform.translation.truncate(),
+                to_player_vector.normalize(),
+                enemy_sight,
+                true,
+                QueryFilter::new().exclude_sensors(),
+            ) {
+                entity == player_entity
+            } else {
+                false
+            };
+
+        if see_player {
+            *enemy_state = EnemyState::Alert {
+                target: player_transform.translation.truncate(),
+            };
+        } else {
+            *enemy_state = EnemyState::Idle;
         }
     }
 }
