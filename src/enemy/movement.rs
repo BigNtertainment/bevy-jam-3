@@ -115,8 +115,6 @@ fn enemy_movement(
                         .target()
                         .unwrap_or(enemy_transform.translation.truncate());
 
-                    println!("new target: {}", target);
-
                     Some(target)
                 } else {
                     None
