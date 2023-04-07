@@ -5,13 +5,13 @@ use crate::{
     actions::{Actions, BurstActions},
     cleanup::cleanup,
     loading::TextureAssets,
-    pill::{Pill, PillEffect},
+    pill::Pill,
     unit::{Health, Movement},
     GameState, WorldState,
 };
 
 use self::{
-    effect::{Blindness, Dizziness, EffectPlugin, Invincibility, Invisibility, MovementBoost},
+    effect::{execute_pill_effects, Dizziness, EffectPlugin, MovementBoost},
     inventory::Inventory,
     ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
 };
@@ -213,54 +213,4 @@ pub fn consume_pills(
     }
 
     pills
-}
-
-pub fn execute_pill_effects(
-    In(pills): In<Vec<Pill>>,
-    mut commands: Commands,
-    mut player_query: Query<(Entity, &mut Health), With<Player>>,
-) {
-    let (player_entity, mut player_health) = player_query.single_mut();
-
-    for pill in pills {
-        for effect in [pill.main_effect, pill.side_effect] {
-            match effect {
-                PillEffect::Heal { amount } => {
-                    player_health.heal(amount);
-                }
-                PillEffect::Speed { amount, duration } => {
-                    commands.entity(player_entity).insert(MovementBoost {
-                        timer: Timer::new(duration, TimerMode::Once),
-                        multiplier: amount,
-                    });
-                }
-                PillEffect::ToxicFart => {
-                    // todo!();
-                }
-                PillEffect::Invisibility { duration } => {
-                    commands.entity(player_entity).insert(Invisibility {
-                        timer: Timer::new(duration, TimerMode::Once),
-                    });
-                }
-                PillEffect::Invincibility { duration } => {
-                    commands.entity(player_entity).insert(Invincibility {
-                        timer: Timer::new(duration, TimerMode::Once),
-                    });
-                }
-                PillEffect::Blindness { duration } => {
-                    commands.entity(player_entity).insert(Blindness {
-                        timer: Timer::new(duration, TimerMode::Once),
-                    });
-                }
-                PillEffect::Dizziness { duration } => {
-                    commands.entity(player_entity).insert(Dizziness {
-                        timer: Timer::new(duration, TimerMode::Once),
-                    });
-                }
-                PillEffect::Sneeze => {
-                    // todo!();
-                }
-            }
-        }
-    }
 }

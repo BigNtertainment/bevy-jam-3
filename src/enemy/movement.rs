@@ -132,6 +132,7 @@ pub fn enemy_movement(
                     Some(target)
                 }
             }
+            EnemyState::Stun { timer: _ } => continue,
         };
 
         if let Some(target) = new_target {
@@ -153,7 +154,7 @@ pub fn enemy_movement(
         if let Some(target) = enemy_movement_target.path.get(0) {
             let movement_vector = *target - enemy_transform.translation.truncate();
 
-            let speed = if *enemy_state == EnemyState::Idle {
+            let speed = if matches!(*enemy_state, EnemyState::Idle) {
                 enemy_movement.speed
             } else {
                 enemy_movement.running_speed
@@ -210,7 +211,7 @@ fn enemy_guard_area_timer(
 }
 
 fn avoid_overlap(
-    mut enemies: Query<&mut Transform, With<EnemyState>>,
+    mut enemies: Query<(&mut Transform, &EnemyState), With<EnemyState>>,
     nav_mesh_query: Query<&NavMesh, With<World>>,
     mesh_assets: Res<Assets<PathMesh>>,
     time: Res<Time>,
@@ -219,7 +220,12 @@ fn avoid_overlap(
     let mesh = mesh_assets.get(&nav_mesh.0).unwrap();
     let mut combinations = enemies.iter_combinations_mut();
 
-    while let Some([mut transform1, mut transform2]) = combinations.fetch_next() {
+    while let Some([(mut transform1, state1), (mut transform2, state2)]) = combinations.fetch_next()
+    {
+        if matches!(state1, EnemyState::Stun { .. }) && matches!(state2, EnemyState::Stun { .. }) {
+            continue;
+        }
+
         let vector = transform1.translation.truncate() - transform2.translation.truncate();
 
         let distance = vector.length();
@@ -231,8 +237,10 @@ fn avoid_overlap(
                 vector / distance
             };
 
-            let target1 = transform1.translation.truncate() + normalized / distance * 100. * time.delta_seconds();
-            let target2 = transform2.translation.truncate() - normalized / distance * 100. * time.delta_seconds();
+            let target1 = transform1.translation.truncate()
+                + normalized / distance * 500. * time.delta_seconds();
+            let target2 = transform2.translation.truncate()
+                - normalized / distance * 500. * time.delta_seconds();
 
             if mesh.is_in_mesh(target1) {
                 transform1.translation = target1.extend(transform1.translation.z);

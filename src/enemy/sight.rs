@@ -29,25 +29,28 @@ pub fn see_player(
     let (player_entity, player_transform, player_invisibility) = player_query.single();
 
     for (mut enemy_state, enemy_transform, enemy_direction) in enemy_query.iter_mut() {
+        if matches!(*enemy_state, EnemyState::Stun { .. }) {
+            continue;
+        }
+
         let to_player_vector =
             (player_transform.translation - enemy_transform.translation).truncate();
 
-        if *enemy_state.as_ref() == EnemyState::Idle {
-            let angle = Euler::from_radians(to_player_vector.angle_between(Vec2::new(0., 1.)));
+        let distance = player_transform
+            .translation
+            .truncate()
+            .distance(enemy_transform.translation.truncate());
 
-            if Direction::from(angle) != *enemy_direction {
-                continue;
-            }
-        }
+        let angle = Euler::from_radians(to_player_vector.angle_between(Vec2::new(0., 1.)));
 
         let enemy_sight = 35000.0;
 
-        let see_player = player_transform
-            .translation
-            .truncate()
-            .distance(enemy_transform.translation.truncate())
-            < 5.
-            || (if let Some((entity, _)) = rapier_context.cast_ray(
+        let see_player = distance < 15.
+            || (if matches!(*enemy_state.as_ref(), EnemyState::Idle) {
+                Direction::from(angle) == *enemy_direction
+            } else {
+                true
+            } && if let Some((entity, _)) = rapier_context.cast_ray(
                 enemy_transform.translation.truncate(),
                 to_player_vector.normalize(),
                 enemy_sight,

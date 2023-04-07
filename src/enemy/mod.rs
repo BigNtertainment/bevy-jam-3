@@ -27,18 +27,23 @@ impl Plugin for EnemyPlugin {
             .add_plugin(EnemySightPlugin)
             .add_plugin(EnemyAttackPlugin)
             .add_system(debug_spawn.in_schedule(OnEnter(GameState::Playing)))
-            .add_system(update_sprites.in_set(OnUpdate(GameState::Playing)))
+            .add_systems(
+                (update_sprites, handle_stunned_enemies).in_set(OnUpdate(GameState::Playing)),
+            )
             .add_system(cleanup::<EnemyState>.in_schedule(OnExit(WorldState::Yes)));
     }
 }
 
-#[derive(Component, Debug, Clone, Default, PartialEq, Reflect)]
+#[derive(Component, Debug, Clone, Default, Reflect)]
 #[reflect(Component)]
 pub enum EnemyState {
     #[default]
     Idle,
     Alert {
         target: Vec2,
+    },
+    Stun {
+        timer: Timer,
     },
 }
 
@@ -147,6 +152,17 @@ fn update_sprites(
             Direction::Down => textures.enemy_down.clone(),
             Direction::Left => textures.enemy_left.clone(),
             Direction::Right => textures.enemy_right.clone(),
+        }
+    }
+}
+
+fn handle_stunned_enemies(mut enemy_query: Query<&mut EnemyState>, time: Res<Time>) {
+    for mut enemy_state in enemy_query.iter_mut() {
+        if let EnemyState::Stun { timer } = enemy_state.as_mut() {
+            timer.tick(time.delta());
+            if timer.finished() {
+                *enemy_state = EnemyState::Idle;
+            }
         }
     }
 }

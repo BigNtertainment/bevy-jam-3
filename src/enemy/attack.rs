@@ -29,6 +29,10 @@ fn attack_player(
     let (player_transform, mut player_health) = player_query.single_mut();
 
     for (enemy_state, mut enemy_timer, enemy_transform) in enemy_query.iter_mut() {
+        if matches!(*enemy_state, EnemyState::Stun { .. }) {
+            continue;
+        }
+
         if matches!(enemy_state, EnemyState::Alert { .. })
             && player_transform
                 .translation
