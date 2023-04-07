@@ -16,7 +16,7 @@ use self::{
     ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
 };
 
-mod effect;
+pub mod effect;
 mod inventory;
 mod ui;
 

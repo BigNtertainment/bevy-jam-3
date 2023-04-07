@@ -7,7 +7,7 @@ use crate::{
     GameState,
 };
 
-use super::{movement::enemy_movement, EnemyState};
+use super::{super::player::effect::Invisibility, movement::enemy_movement, EnemyState};
 
 pub struct EnemySightPlugin;
 
@@ -23,10 +23,10 @@ impl Plugin for EnemySightPlugin {
 
 pub fn see_player(
     mut enemy_query: Query<(&mut EnemyState, &Transform, &Direction)>,
-    player_query: Query<(Entity, &Transform), With<Player>>,
+    player_query: Query<(Entity, &Transform, Option<&Invisibility>), With<Player>>,
     rapier_context: Res<RapierContext>,
 ) {
-    let (player_entity, player_transform) = player_query.single();
+    let (player_entity, player_transform, player_invisibility) = player_query.single();
 
     for (mut enemy_state, enemy_transform, enemy_direction) in enemy_query.iter_mut() {
         let to_player_vector =
@@ -47,7 +47,7 @@ pub fn see_player(
             .truncate()
             .distance(enemy_transform.translation.truncate())
             < 5.
-            || if let Some((entity, _)) = rapier_context.cast_ray(
+            || (if let Some((entity, _)) = rapier_context.cast_ray(
                 enemy_transform.translation.truncate(),
                 to_player_vector.normalize(),
                 enemy_sight,
@@ -57,7 +57,7 @@ pub fn see_player(
                 entity == player_entity
             } else {
                 false
-            };
+            } && player_invisibility.is_none());
 
         if see_player {
             *enemy_state = EnemyState::Alert {
