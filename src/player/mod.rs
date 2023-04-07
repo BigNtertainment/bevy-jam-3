@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, RigidBody, Sensor};
+use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, RigidBody};
 
 use crate::{
     actions::{Actions, BurstActions},
@@ -11,7 +11,7 @@ use crate::{
 };
 
 use self::{
-    effect::{Dizziness, Invincibility, Invisibility, MovementBoost, EffectPlugin, Blindness},
+    effect::{Blindness, Dizziness, EffectPlugin, Invincibility, Invisibility, MovementBoost},
     inventory::Inventory,
     ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
 };
@@ -58,7 +58,6 @@ struct PlayerBundle {
     // TODO: make an issue in rapier so they register their types
     rigidbody: RigidBody,
     collider: Collider,
-    sensor: Sensor,
     name: Name,
     movement: Movement,
     health: Health,
@@ -75,7 +74,6 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
         },
         rigidbody: RigidBody::KinematicPositionBased,
         collider: Collider::cuboid(27., 63.),
-        sensor: Sensor,
         name: Name::new("Player"),
         movement: Movement { speed: 400.0 },
         health: Health::default(),
@@ -86,6 +84,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
 fn player_movement(
     mut player_query: Query<
         (
+            Entity,
             &mut Transform,
             &Collider,
             &Movement,
@@ -98,7 +97,9 @@ fn player_movement(
     actions: Res<Actions>,
     time: Res<Time>,
 ) {
-    for (mut transform, collider, movement, movement_boost, dizziness) in player_query.iter_mut() {
+    for (entity, mut transform, collider, movement, movement_boost, dizziness) in
+        player_query.iter_mut()
+    {
         let speed = movement.speed * time.delta_seconds();
 
         let movement_vector = actions.player_movement.normalize_or_zero()
@@ -120,7 +121,7 @@ fn player_movement(
                 horizontal_vector,
                 collider,
                 1.,
-                QueryFilter::default().exclude_sensors(),
+                QueryFilter::default().exclude_sensors().exclude_collider(entity),
             ) {
                 transform.translation.truncate() + horizontal_vector * (hit.toi - 1.).max(0.)
             } else {
@@ -135,7 +136,7 @@ fn player_movement(
                 vertical_vector,
                 collider,
                 1.,
-                QueryFilter::default().exclude_sensors(),
+                QueryFilter::default().exclude_sensors().exclude_collider(entity),
             ) {
                 transform.translation.truncate() + vertical_vector * (hit.toi - 1.).max(0.)
             } else {

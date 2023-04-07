@@ -40,8 +40,14 @@ pub struct TextureAssets {
     // TODO: Change this texture
     #[asset(path = "textures/wall.png")]
     pub wall: Handle<Image>,
-    #[asset(path = "textures/enemy.png")]
-    pub enemy: Handle<Image>,
+    #[asset(path = "textures/enemy/enemy-up.png")]
+    pub enemy_up: Handle<Image>,
+    #[asset(path = "textures/enemy/enemy-down.png")]
+    pub enemy_down: Handle<Image>,
+    #[asset(path = "textures/enemy/enemy-left.png")]
+    pub enemy_left: Handle<Image>,
+    #[asset(path = "textures/enemy/enemy-right.png")]
+    pub enemy_right: Handle<Image>,
     #[asset(path = "textures/pills/health_pill.png")]
     pub health_pill: Handle<Image>,
     #[asset(path = "textures/pills/speed_pill.png")]

@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, Sensor};
+use bevy_rapier2d::prelude::{Collider, Sensor, RigidBody};
 
 use crate::{
     cleanup::cleanup,
@@ -8,16 +8,19 @@ use crate::{
     GameState,
 };
 
-use self::movement::{EnemyMovementPlugin, EnemyMovementTarget, EnemyMovementType};
+use self::{movement::{EnemyMovementPlugin, EnemyMovementTarget, EnemyMovementType}, sight::EnemySightPlugin};
 
 mod movement;
+mod sight;
 
 pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(EnemyMovementPlugin)
+            .add_plugin(EnemySightPlugin)
             .add_system(debug_spawn.in_schedule(OnEnter(GameState::Playing)))
+            .add_system(update_sprites.in_set(OnUpdate(GameState::Playing)))
             .add_system(cleanup::<EnemyState>.in_schedule(OnExit(GameState::Playing)));
     }
 }
@@ -39,6 +42,7 @@ pub struct EnemyBundle {
     sprite_bundle: SpriteBundle,
     movement: Movement,
     direction: Direction,
+    rigidbody: RigidBody,
     collider: Collider,
     sensor: Sensor,
     state: EnemyState,
@@ -52,6 +56,7 @@ impl Default for EnemyBundle {
             sprite_bundle: SpriteBundle::default(),
             movement: Movement { speed: 100. },
             direction: Direction::default(),
+            rigidbody: RigidBody::KinematicPositionBased,
             collider: Collider::cuboid(32., 128.),
             sensor: Sensor,
             state: EnemyState::default(),
@@ -68,7 +73,7 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
             sprite_bundle: SpriteBundle {
                 transform: Transform::from_xyz(-100., 50., 0.)
                     .with_scale(Vec2::splat(0.5).extend(1.)),
-                texture: textures.enemy.clone(),
+                texture: textures.enemy_down.clone(),
                 ..default()
             },
             ..default()
@@ -80,7 +85,7 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
                 sprite_bundle: SpriteBundle {
                     transform: Transform::from_xyz(200., 250., 0.)
                         .with_scale(Vec2::splat(0.5).extend(1.)),
-                    texture: textures.enemy.clone(),
+                    texture: textures.enemy_down.clone(),
                     ..default()
                 },
                 movement_type: EnemyMovementType::AlongPath {
@@ -101,7 +106,7 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
                     sprite_bundle: SpriteBundle {
                         transform: Transform::from_xyz(150., 150., 0.)
                             .with_scale(Vec2::splat(0.5).extend(1.)),
-                        texture: textures.enemy.clone(),
+                        texture: textures.enemy_down.clone(),
                         ..default()
                     },
                     movement_type: EnemyMovementType::GuardArea {
@@ -115,4 +120,15 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
                     ..default()
                 })
                 .insert(Name::new("Enemy #3"));
+}
+
+fn update_sprites(mut enemy_query: Query<(&mut Handle<Image>, &Direction), (With<EnemyState>, Changed<Direction>)>, textures: Res<TextureAssets>) {
+    for (mut texture, direction) in enemy_query.iter_mut() {
+        *texture = match direction {
+            Direction::Up => textures.enemy_up.clone(),
+            Direction::Down => textures.enemy_down.clone(),
+            Direction::Left => textures.enemy_left.clone(),
+            Direction::Right => textures.enemy_right.clone(),
+        }
+    }
 }
