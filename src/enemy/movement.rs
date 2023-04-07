@@ -14,7 +14,8 @@ pub struct EnemyMovementPlugin;
 impl Plugin for EnemyMovementPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<EnemyMovementTarget>().add_systems(
-            (enemy_movement, enemy_guard_area_timer).in_set(OnUpdate(GameState::Playing)),
+            (enemy_movement, enemy_guard_area_timer, avoid_overlap)
+                .in_set(OnUpdate(GameState::Playing)),
         );
     }
 }
@@ -130,7 +131,7 @@ pub fn enemy_movement(
                 } else {
                     Some(target)
                 }
-            },
+            }
         };
 
         if let Some(target) = new_target {
@@ -203,6 +204,42 @@ fn enemy_guard_area_timer(
                 wait_timer.tick(time.delta());
             } else {
                 wait_timer.reset();
+            }
+        }
+    }
+}
+
+fn avoid_overlap(
+    mut enemies: Query<&mut Transform, With<EnemyState>>,
+    nav_mesh_query: Query<&NavMesh, With<World>>,
+    mesh_assets: Res<Assets<PathMesh>>,
+    time: Res<Time>,
+) {
+    let nav_mesh = nav_mesh_query.single();
+    let mesh = mesh_assets.get(&nav_mesh.0).unwrap();
+    let mut combinations = enemies.iter_combinations_mut();
+
+    while let Some([mut transform1, mut transform2]) = combinations.fetch_next() {
+        let vector = transform1.translation.truncate() - transform2.translation.truncate();
+
+        let distance = vector.length();
+
+        if distance < 25. {
+            let normalized = if distance == 0. {
+                Vec2::new(1., 0.)
+            } else {
+                vector / distance
+            };
+
+            let target1 = transform1.translation.truncate() + normalized / distance * 100. * time.delta_seconds();
+            let target2 = transform2.translation.truncate() - normalized / distance * 100. * time.delta_seconds();
+
+            if mesh.is_in_mesh(target1) {
+                transform1.translation = target1.extend(transform1.translation.z);
+            }
+
+            if mesh.is_in_mesh(target2) {
+                transform2.translation = target2.extend(transform2.translation.z);
             }
         }
     }
