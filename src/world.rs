@@ -40,15 +40,13 @@ fn world_setup(
     )));
 
     commands
-        .spawn(
-            (
-                TransformBundle::default(),
-                VisibilityBundle::default(),
-                Name::new("World"),
-                NavMesh(navmesh),
-                World,
-            )
-        )
+        .spawn((
+            TransformBundle::default(),
+            VisibilityBundle::default(),
+            Name::new("World"),
+            NavMesh(navmesh),
+            World,
+        ))
         .with_children(|parent| {
             parent
                 .spawn(SpriteBundle {

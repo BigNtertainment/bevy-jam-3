@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, Sensor, RigidBody};
+use bevy_rapier2d::prelude::{Collider, RigidBody, Sensor};
 
 use crate::{
     cleanup::cleanup,
@@ -8,7 +8,10 @@ use crate::{
     GameState,
 };
 
-use self::{movement::{EnemyMovementPlugin, EnemyMovementTarget, EnemyMovementType}, sight::EnemySightPlugin};
+use self::{
+    movement::{EnemyMovementPlugin, EnemyMovementTarget, EnemyMovementType},
+    sight::EnemySightPlugin,
+};
 
 mod movement;
 mod sight;
@@ -80,49 +83,53 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
         })
         .insert(Name::new("Enemy #1"));
 
-        commands
-            .spawn(EnemyBundle {
-                sprite_bundle: SpriteBundle {
-                    transform: Transform::from_xyz(200., 250., 0.)
-                        .with_scale(Vec2::splat(0.5).extend(1.)),
-                    texture: textures.enemy_down.clone(),
-                    ..default()
-                },
-                movement_type: EnemyMovementType::AlongPath {
-                    path: vec![
-                        Vec2::new(200., 250.),
-                        Vec2::new(200., -250.),
-                        Vec2::new(100., -250.),
-                        Vec2::new(100., 250.),
-                    ],
-                    current: 0,
-                },
+    commands
+        .spawn(EnemyBundle {
+            sprite_bundle: SpriteBundle {
+                transform: Transform::from_xyz(200., 250., 0.)
+                    .with_scale(Vec2::splat(0.5).extend(1.)),
+                texture: textures.enemy_down.clone(),
                 ..default()
-            })
-            .insert(Name::new("Enemy #2"));
+            },
+            movement_type: EnemyMovementType::AlongPath {
+                path: vec![
+                    Vec2::new(200., 250.),
+                    Vec2::new(200., -250.),
+                    Vec2::new(100., -250.),
+                    Vec2::new(100., 250.),
+                ],
+                current: 0,
+            },
+            ..default()
+        })
+        .insert(Name::new("Enemy #2"));
 
-            commands
-                .spawn(EnemyBundle {
-                    sprite_bundle: SpriteBundle {
-                        transform: Transform::from_xyz(150., 150., 0.)
-                            .with_scale(Vec2::splat(0.5).extend(1.)),
-                        texture: textures.enemy_down.clone(),
-                        ..default()
-                    },
-                    movement_type: EnemyMovementType::GuardArea {
-                        area: Rect::new(0., 100., 300., 300.),
-                        current: Vec2::new(150., 150.),
-                        wait_timer: Timer::from_seconds(3., TimerMode::Repeating),
-                    },
-                    movement: Movement {
-                        speed: 50.,
-                    },
-                    ..default()
-                })
-                .insert(Name::new("Enemy #3"));
+    commands
+        .spawn(EnemyBundle {
+            sprite_bundle: SpriteBundle {
+                transform: Transform::from_xyz(150., 150., 0.)
+                    .with_scale(Vec2::splat(0.5).extend(1.)),
+                texture: textures.enemy_down.clone(),
+                ..default()
+            },
+            movement_type: EnemyMovementType::GuardArea {
+                area: Rect::new(0., 100., 300., 300.),
+                current: Vec2::new(150., 150.),
+                wait_timer: Timer::from_seconds(3., TimerMode::Repeating),
+            },
+            movement: Movement { speed: 50. },
+            ..default()
+        })
+        .insert(Name::new("Enemy #3"));
 }
 
-fn update_sprites(mut enemy_query: Query<(&mut Handle<Image>, &Direction), (With<EnemyState>, Changed<Direction>)>, textures: Res<TextureAssets>) {
+fn update_sprites(
+    mut enemy_query: Query<
+        (&mut Handle<Image>, &Direction),
+        (With<EnemyState>, Changed<Direction>),
+    >,
+    textures: Res<TextureAssets>,
+) {
     for (mut texture, direction) in enemy_query.iter_mut() {
         *texture = match direction {
             Direction::Up => textures.enemy_up.clone(),

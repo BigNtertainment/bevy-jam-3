@@ -94,7 +94,9 @@ impl From<Direction> for Euler {
 impl From<Euler> for Direction {
     fn from(angle: Euler) -> Self {
         match angle.0 {
-            angle if (315.0..=360.0).contains(&angle) || (0.0..=45.0).contains(&angle) => Direction::Up,
+            angle if (315.0..=360.0).contains(&angle) || (0.0..=45.0).contains(&angle) => {
+                Direction::Up
+            }
             angle if (45.0..=135.0).contains(&angle) => Direction::Right,
             angle if (135.0..=225.0).contains(&angle) => Direction::Down,
             angle if (225.0..=315.0).contains(&angle) => Direction::Left,

@@ -121,7 +121,9 @@ fn player_movement(
                 horizontal_vector,
                 collider,
                 1.,
-                QueryFilter::default().exclude_sensors().exclude_collider(entity),
+                QueryFilter::default()
+                    .exclude_sensors()
+                    .exclude_collider(entity),
             ) {
                 transform.translation.truncate() + horizontal_vector * (hit.toi - 1.).max(0.)
             } else {
@@ -136,7 +138,9 @@ fn player_movement(
                 vertical_vector,
                 collider,
                 1.,
-                QueryFilter::default().exclude_sensors().exclude_collider(entity),
+                QueryFilter::default()
+                    .exclude_sensors()
+                    .exclude_collider(entity),
             ) {
                 transform.translation.truncate() + vertical_vector * (hit.toi - 1.).max(0.)
             } else {

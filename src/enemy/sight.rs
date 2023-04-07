@@ -30,7 +30,7 @@ fn see_player(
 
         if *enemy_state.as_ref() == EnemyState::Idle {
             let angle = Euler::from_radians(to_player_vector.angle_between(Vec2::new(0., 1.)));
-    
+
             if Direction::from(angle) != *enemy_direction {
                 continue;
             }

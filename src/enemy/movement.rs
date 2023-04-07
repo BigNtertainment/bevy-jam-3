@@ -188,7 +188,11 @@ fn enemy_guard_area_timer(
             wait_timer,
         } = movement_type.as_mut()
         {
-            let target = target.path.get(0).map(|target| *target).unwrap_or(transform.translation.truncate());
+            let target = target
+                .path
+                .get(0)
+                .map(|target| *target)
+                .unwrap_or(transform.translation.truncate());
 
             if transform.translation.truncate() == target {
                 wait_timer.tick(time.delta());
