@@ -78,11 +78,14 @@ impl Default for EnemyBundle {
                 Animation::new(AnimationBounds::new(0, 0), Duration::from_millis(500)),
                 // Walking
                 Animation::new(AnimationBounds::new(0, 19), Duration::from_millis(80)),
+                // Stun
+                Animation::new(AnimationBounds::new(20, 21), Duration::from_millis(350)),
             ],
             0,
         );
 
         animation_manager.add_state("walk".to_string(), false);
+        animation_manager.add_state("stun".to_string(), false);
 
         animation_manager.add_graph_edge(
             0,
@@ -100,6 +103,30 @@ impl Default for EnemyBundle {
             1,
             1,
             AnimationTransitionCondition::new(Box::new(|state| state["walk"])),
+        );
+
+        animation_manager.add_graph_edge(
+            0,
+            2,
+            AnimationTransitionCondition::new(Box::new(|state| state["stun"]))
+                .with_mode(AnimationTransitionMode::Immediate),
+        );
+        animation_manager.add_graph_edge(
+            1,
+            2,
+            AnimationTransitionCondition::new(Box::new(|state| state["stun"]))
+                .with_mode(AnimationTransitionMode::Immediate),
+        );
+        animation_manager.add_graph_edge(
+            2,
+            2,
+            AnimationTransitionCondition::new(Box::new(|state| state["stun"])),
+        );
+        animation_manager.add_graph_edge(
+            2,
+            0,
+            AnimationTransitionCondition::new(Box::new(|state| !state["stun"]))
+                .with_mode(AnimationTransitionMode::Immediate),
         );
 
         Self {
@@ -198,12 +225,16 @@ fn update_sprites(
     }
 }
 
-fn handle_stunned_enemies(mut enemy_query: Query<&mut EnemyState>, time: Res<Time>) {
-    for mut enemy_state in enemy_query.iter_mut() {
+fn handle_stunned_enemies(mut enemy_query: Query<(&mut EnemyState, &mut AnimationManager)>, time: Res<Time>) {
+    for (mut enemy_state, mut animation_manager) in enemy_query.iter_mut() {
         if let EnemyState::Stun { timer } = enemy_state.as_mut() {
             timer.tick(time.delta());
+
+            animation_manager.set_state("stun".to_string(), true).unwrap();
+
             if timer.finished() {
                 *enemy_state = EnemyState::Idle;
+                animation_manager.set_state("stun".to_string(), false).unwrap();
             }
         }
     }

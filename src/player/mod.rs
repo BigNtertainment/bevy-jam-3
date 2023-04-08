@@ -76,7 +76,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
         collider: Collider::cuboid(27., 63.),
         name: Name::new("Player"),
         movement: Movement {
-            speed: 200.0,
+            speed: 500.0,
             running_speed: 250.0,
         },
         health: Health::default(),
