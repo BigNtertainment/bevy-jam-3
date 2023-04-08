@@ -83,7 +83,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
             ..Default::default()
         },
         rigidbody: RigidBody::KinematicPositionBased,
-        collider: Collider::cuboid(27., 63.),
+        collider: Collider::cuboid(21., 53.),
         name: Name::new("Player"),
         movement: Movement {
             speed: 500.0, // TODO: Change it to 200.0 for release
