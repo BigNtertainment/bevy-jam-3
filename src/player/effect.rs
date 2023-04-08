@@ -93,8 +93,6 @@ pub fn execute_pill_effects(
                             .truncate()
                             .distance(player_transform.translation.truncate());
 
-                        println!("distance: {}", distance);
-
                         if distance < 450.0 && !matches!(*enemy_state, EnemyState::Stun { .. }) {
                             *enemy_state = EnemyState::Alert {
                                 target: player_transform.translation.truncate(),
