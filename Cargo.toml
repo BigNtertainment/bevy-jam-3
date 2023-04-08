@@ -2,7 +2,7 @@
 name = "drug_test"
 version = "0.1.0"
 publish = false
-authors = ["Dawid Piotrowski", "Tymon Płochocki", "Kajetan Witkowski", "Sebastian Flajszer"]
+authors = ["BigNtertainment", "Dawid Piotrowski", "Tymon Płochocki", "Kajetan Witkowski", "Sebastian Flajszer", "Oskar Płaziński", "Szymon Jałowiecki"]
 edition = "2021"
 exclude = ["dist", "build", "assets", "credits"]
 
