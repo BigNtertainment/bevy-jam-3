@@ -1,5 +1,12 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, RigidBody};
+use bevy_spritesheet_animation::{
+    animation::{Animation, AnimationBounds},
+    animation_graph::{AnimationTransitionCondition, AnimationTransitionMode},
+    animation_manager::AnimationManager,
+};
 
 use crate::{
     actions::{Actions, BurstActions},
@@ -62,7 +69,8 @@ pub struct PunchTimer(pub Timer);
 struct PlayerBundle {
     player: Player,
     #[bundle]
-    sprite_bundle: SpriteBundle,
+    sprite_sheet_bundle: SpriteSheetBundle,
+    animation_manager: AnimationManager,
     // TODO: make an issue in rapier so they register their types
     rigidbody: RigidBody,
     collider: Collider,
@@ -75,13 +83,61 @@ struct PlayerBundle {
 }
 
 fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
+    let mut animation_manager = AnimationManager::new(
+        vec![
+            // Idle
+            Animation::new(AnimationBounds::new(0, 0), Duration::from_millis(500)),
+            // Walking
+            Animation::new(AnimationBounds::new(1, 8), Duration::from_millis(120)),
+            // Punching
+            Animation::new(AnimationBounds::new(9, 11), Duration::from_millis(120)),
+        ],
+        0,
+    );
+
+    animation_manager.add_state("walk".to_string(), false);
+    animation_manager.add_state("punch".to_string(), false);
+
+    animation_manager.add_graph_edge(
+        0,
+        1,
+        AnimationTransitionCondition::new(Box::new(|state| state["walk"]))
+            .with_mode(AnimationTransitionMode::Immediate),
+    );
+    animation_manager.add_graph_edge(
+        1,
+        0,
+        AnimationTransitionCondition::new(Box::new(|state| !state["walk"]))
+            .with_mode(AnimationTransitionMode::Immediate),
+    );
+    animation_manager.add_graph_edge(
+        1,
+        1,
+        AnimationTransitionCondition::new(Box::new(|state| state["walk"])),
+    );
+
+    animation_manager.add_graph_edge(
+        0,
+        2,
+        AnimationTransitionCondition::new(Box::new(|state| state["punch"]))
+            .with_mode(AnimationTransitionMode::Immediate),
+    );
+    animation_manager.add_graph_edge(
+        1,
+        2,
+        AnimationTransitionCondition::new(Box::new(|state| state["punch"]))
+            .with_mode(AnimationTransitionMode::Immediate),
+    );
+    animation_manager.add_graph_edge(2, 0, AnimationTransitionCondition::new(Box::new(|_| true)));
+
     commands.spawn(PlayerBundle {
         player: Player::default(),
-        sprite_bundle: SpriteBundle {
-            texture: textures.player_down.clone(),
+        sprite_sheet_bundle: SpriteSheetBundle {
+            texture_atlas: textures.player_down.clone(),
             transform: Transform::from_xyz(0., 0., 5.),
             ..Default::default()
         },
+        animation_manager,
         rigidbody: RigidBody::KinematicPositionBased,
         collider: Collider::cuboid(21., 53.),
         name: Name::new("Player"),
@@ -102,6 +158,7 @@ fn player_movement(
             Entity,
             &mut Transform,
             &mut Direction,
+            &mut AnimationManager,
             &Collider,
             &Movement,
             Option<&MovementBoost>,
@@ -113,8 +170,16 @@ fn player_movement(
     actions: Res<Actions>,
     time: Res<Time>,
 ) {
-    for (entity, mut transform, mut direction, collider, movement, movement_boost, dizziness) in
-        player_query.iter_mut()
+    for (
+        entity,
+        mut transform,
+        mut direction,
+        mut animation_manager,
+        collider,
+        movement,
+        movement_boost,
+        dizziness,
+    ) in player_query.iter_mut()
     {
         let speed = movement.speed * time.delta_seconds();
 
@@ -172,31 +237,46 @@ fn player_movement(
 
         let target = Vec3::new(horizontal_target.x, vertical_target.y, 0.);
 
+        animation_manager
+            .set_state("walk".to_string(), target != transform.translation)
+            .unwrap();
+
         transform.translation = target;
     }
 }
 
 fn update_sprite(
-    mut player_query: Query<(&mut Handle<Image>, &Direction), With<Player>>,
+    mut player_query: Query<(&mut Handle<TextureAtlas>, &Direction), With<Player>>,
     textures: Res<TextureAssets>,
 ) {
     for (mut sprite, direction) in player_query.iter_mut() {
         *sprite = match direction {
-            Direction::Up => textures.player_up.clone(),
+            Direction::Up => textures.player_down.clone(),
             Direction::Down => textures.player_down.clone(),
-            Direction::Left => textures.player_left.clone(),
-            Direction::Right => textures.player_right.clone(),
+            Direction::Left => textures.player_down.clone(),
+            Direction::Right => textures.player_down.clone(),
         };
     }
 }
 
 fn punch_enemies(
-    mut player_query: Query<(&mut PunchTimer, &Transform, &Direction), With<Player>>,
+    mut player_query: Query<
+        (
+            &mut PunchTimer,
+            &mut AnimationManager,
+            &Transform,
+            &Direction,
+        ),
+        With<Player>,
+    >,
     mut enemy_query: Query<(&mut EnemyState, &Transform)>,
     mut burst_actions: EventReader<BurstActions>,
     time: Res<Time>,
 ) {
-    let (mut punch_timer, player_transform, player_direction) = player_query.single_mut();
+    let (mut punch_timer, mut animation_manager, player_transform, player_direction) =
+        player_query.single_mut();
+
+    animation_manager.set_state("punch".to_string(), false).unwrap();
 
     if !punch_timer.tick(time.delta()).finished() {
         return;
@@ -220,6 +300,8 @@ fn punch_enemies(
                 timer: Timer::from_seconds(1.5, TimerMode::Once),
             };
         }
+
+        animation_manager.set_state("punch".to_string(), true).unwrap();
 
         punch_timer.reset();
     }

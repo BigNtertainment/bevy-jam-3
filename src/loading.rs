@@ -37,8 +37,9 @@ pub struct TextureAssets {
     // TODO: Change these textures
     #[asset(path = "textures/player/player-up.png")]
     pub player_up: Handle<Image>,
+    #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
     #[asset(path = "textures/player/player-down.png")]
-    pub player_down: Handle<Image>,
+    pub player_down: Handle<TextureAtlas>,
     #[asset(path = "textures/player/player-left.png")]
     pub player_left: Handle<Image>,
     #[asset(path = "textures/player/player-right.png")]
