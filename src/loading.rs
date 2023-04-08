@@ -51,4 +51,7 @@ pub struct TextureAssets {
 pub struct LevelAssets {
     #[asset(path = "ldtk/level.ldtk")]
     pub ldtk_handle: Handle<LdtkAsset>,
+
+    #[asset(path = "ldtk/tileset.png")]
+    pub level_tileset: Handle<Image>,
 }
