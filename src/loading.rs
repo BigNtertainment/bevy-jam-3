@@ -43,7 +43,7 @@ pub struct TextureAssets {
     #[asset(texture_atlas(tile_size_x=200., tile_size_y=260., columns=5, rows=6))]
     #[asset(path = "textures/enemy/enemy-up.png")]
     pub enemy_up: Handle<TextureAtlas>,
-    #[asset(texture_atlas(tile_size_x=200., tile_size_y=300., columns=5, rows=4))]
+    #[asset(texture_atlas(tile_size_x=200., tile_size_y=300., columns=5, rows=5))]
     #[asset(path = "textures/enemy/enemy-down.png")]
     pub enemy_down: Handle<TextureAtlas>,
     #[asset(texture_atlas(tile_size_x=640., tile_size_y=480., columns=5, rows=6))]

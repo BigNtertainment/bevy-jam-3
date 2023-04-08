@@ -49,18 +49,18 @@ impl PillEffect {
 
     pub fn negative() -> Vec<Self> {
         vec![
-            // Self::Heal { amount: -10. },
-            // Self::Speed {
-            //     amount: 0.5,
-            //     duration: Duration::from_secs(5),
-            // },
+            Self::Heal { amount: -10. },
+            Self::Speed {
+                amount: 0.5,
+                duration: Duration::from_secs(5),
+            },
             Self::Sneeze,
-            // Self::Dizziness {
-            //     duration: Duration::from_secs(5),
-            // },
-            // Self::Blindness {
-            //     duration: Duration::from_secs(5),
-            // },
+            Self::Dizziness {
+                duration: Duration::from_secs(5),
+            },
+            Self::Blindness {
+                duration: Duration::from_secs(5),
+            },
         ]
     }
 }
