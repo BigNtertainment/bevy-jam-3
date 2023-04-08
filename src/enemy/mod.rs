@@ -1,5 +1,12 @@
+use std::time::Duration;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{Collider, RigidBody, Sensor};
+use bevy_spritesheet_animation::{
+    animation::{Animation, AnimationBounds},
+    animation_graph::{AnimationTransitionCondition, AnimationTransitionMode},
+    animation_manager::AnimationManager,
+};
 
 use crate::{
     cleanup::cleanup,
@@ -50,7 +57,7 @@ pub enum EnemyState {
 #[derive(Bundle)]
 pub struct EnemyBundle {
     #[bundle]
-    sprite_bundle: SpriteBundle,
+    sprite_sheet_bundle: SpriteSheetBundle,
     movement: Movement,
     direction: Direction,
     rigidbody: RigidBody,
@@ -59,13 +66,44 @@ pub struct EnemyBundle {
     state: EnemyState,
     movement_type: EnemyMovementType,
     movement_target: EnemyMovementTarget,
+    animation_manager: AnimationManager,
     attack_timer: EnemyAttackTimer,
 }
 
 impl Default for EnemyBundle {
     fn default() -> Self {
+        let mut animation_manager = AnimationManager::new(
+            vec![
+                // Idle
+                Animation::new(AnimationBounds::new(0, 0), Duration::from_millis(500)),
+                // Walking
+                Animation::new(AnimationBounds::new(0, 19), Duration::from_millis(80)),
+            ],
+            0,
+        );
+
+        animation_manager.add_state("walk".to_string(), false);
+
+        animation_manager.add_graph_edge(
+            0,
+            1,
+            AnimationTransitionCondition::new(Box::new(|state| state["walk"]))
+                .with_mode(AnimationTransitionMode::Immediate),
+        );
+        animation_manager.add_graph_edge(
+            1,
+            0,
+            AnimationTransitionCondition::new(Box::new(|state| !state["walk"]))
+                .with_mode(AnimationTransitionMode::Immediate),
+        );
+        animation_manager.add_graph_edge(
+            1,
+            1,
+            AnimationTransitionCondition::new(Box::new(|state| state["walk"])),
+        );
+
         Self {
-            sprite_bundle: SpriteBundle::default(),
+            sprite_sheet_bundle: SpriteSheetBundle::default(),
             movement: Movement {
                 speed: 100.,
                 running_speed: 215.,
@@ -77,6 +115,7 @@ impl Default for EnemyBundle {
             state: EnemyState::default(),
             movement_type: EnemyMovementType::Static { target: Vec2::ZERO },
             movement_target: EnemyMovementTarget::default(),
+            animation_manager,
             attack_timer: EnemyAttackTimer(Timer::from_seconds(1., TimerMode::Repeating)),
         }
     }
@@ -86,10 +125,11 @@ impl Default for EnemyBundle {
 fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
     commands
         .spawn(EnemyBundle {
-            sprite_bundle: SpriteBundle {
+            sprite_sheet_bundle: SpriteSheetBundle {
                 transform: Transform::from_xyz(-100., 50., 0.)
                     .with_scale(Vec2::splat(0.5).extend(1.)),
-                texture: textures.enemy_down.clone(),
+                texture_atlas: textures.enemy_down.clone(),
+                sprite: TextureAtlasSprite::new(0),
                 ..default()
             },
             ..default()
@@ -98,10 +138,11 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
 
     commands
         .spawn(EnemyBundle {
-            sprite_bundle: SpriteBundle {
+            sprite_sheet_bundle: SpriteSheetBundle {
                 transform: Transform::from_xyz(200., 250., 0.)
                     .with_scale(Vec2::splat(0.5).extend(1.)),
-                texture: textures.enemy_down.clone(),
+                texture_atlas: textures.enemy_down.clone(),
+                sprite: TextureAtlasSprite::new(0),
                 ..default()
             },
             movement_type: EnemyMovementType::AlongPath {
@@ -119,10 +160,11 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
 
     commands
         .spawn(EnemyBundle {
-            sprite_bundle: SpriteBundle {
+            sprite_sheet_bundle: SpriteSheetBundle {
                 transform: Transform::from_xyz(150., 150., 0.)
                     .with_scale(Vec2::splat(0.5).extend(1.)),
-                texture: textures.enemy_down.clone(),
+                texture_atlas: textures.enemy_down.clone(),
+                sprite: TextureAtlasSprite::new(0),
                 ..default()
             },
             movement_type: EnemyMovementType::GuardArea {
@@ -141,7 +183,7 @@ fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
 
 fn update_sprites(
     mut enemy_query: Query<
-        (&mut Handle<Image>, &Direction),
+        (&mut Handle<TextureAtlas>, &Direction),
         (With<EnemyState>, Changed<Direction>),
     >,
     textures: Res<TextureAssets>,

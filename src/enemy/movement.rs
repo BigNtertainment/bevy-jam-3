@@ -1,5 +1,6 @@
 use bevy::prelude::*;
 use bevy_pathmesh::PathMesh;
+use bevy_spritesheet_animation::animation_manager::AnimationManager;
 
 use crate::{
     unit::{Direction, Euler, Movement},
@@ -89,6 +90,7 @@ pub fn enemy_movement(
         &EnemyState,
         &mut EnemyMovementTarget,
         &mut EnemyMovementType,
+        &mut AnimationManager,
         &Movement,
         &mut Direction,
         &mut Transform,
@@ -103,6 +105,7 @@ pub fn enemy_movement(
         enemy_state,
         mut enemy_movement_target,
         mut enemy_movement_type,
+        mut enemy_animation_manager,
         enemy_movement,
         mut enemy_direction,
         mut enemy_transform,
@@ -175,11 +178,23 @@ pub fn enemy_movement(
                 let movement_angle =
                     Euler::from_radians(movement_vector.angle_between(Vec2::new(0.0, 1.0)));
                 enemy_direction.set_if_neq(Direction::from(movement_angle));
+
+                enemy_animation_manager
+                    .set_state("walk".to_string(), true)
+                    .unwrap();
+            } else {
+                enemy_animation_manager
+                    .set_state("walk".to_string(), false)
+                    .unwrap();
             }
 
             if (*target - enemy_transform.translation.truncate()).length() < 0.1 {
                 enemy_movement_target.path.remove(0);
             }
+        } else {
+            enemy_animation_manager
+                .set_state("walk".to_string(), false)
+                .unwrap();
         }
     }
 }
