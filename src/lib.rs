@@ -1,4 +1,5 @@
 mod actions;
+mod camera;
 mod cleanup;
 mod enemy;
 mod game_over;
@@ -19,6 +20,7 @@ use bevy_rapier2d::{
     prelude::{NoUserData, RapierPhysicsPlugin},
     render::RapierDebugRenderPlugin,
 };
+use camera::CameraPlugin;
 use enemy::EnemyPlugin;
 use game_over::GameOverPlugin;
 use loading::LoadingPlugin;
@@ -66,7 +68,8 @@ impl Plugin for GamePlugin {
             .add_plugin(GameOverPlugin)
             .add_plugin(PillPlugin)
             .add_plugin(EnemyPlugin)
-            .add_plugin(WorldPlugin);
+            .add_plugin(WorldPlugin)
+            .add_plugin(CameraPlugin);
 
         #[cfg(debug_assertions)]
         {
