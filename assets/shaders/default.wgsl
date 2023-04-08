@@ -1,4 +1,4 @@
-// #import bevy_pbr::mesh_view_bindings
+#import bevy_pbr::mesh_view_bindings
 #import bevy_pbr::utils
 
 @group(1) @binding(0)
