@@ -4,9 +4,10 @@ use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, RigidBody};
 use crate::{
     actions::{Actions, BurstActions},
     cleanup::cleanup,
+    enemy::EnemyState,
     loading::TextureAssets,
     pill::Pill,
-    unit::{Health, Movement, Direction, Euler},
+    unit::{Direction, Euler, Health, Movement},
     GameState, WorldState,
 };
 
@@ -25,6 +26,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Player>()
+            .register_type::<PunchTimer>()
             .register_type::<PlayerUI>()
             .register_type::<HealthUI>()
             .register_type::<InventorySlotUI>()
@@ -33,6 +35,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 (
                     player_movement,
+                    punch_enemies,
                     pick_up_pills,
                     consume_pills.pipe(execute_pill_effects),
                     update_sprite,
@@ -51,6 +54,10 @@ impl Plugin for PlayerPlugin {
 #[reflect(Component)]
 pub struct Player;
 
+#[derive(Reflect, Component, Clone, Default, Debug, Deref, DerefMut)]
+#[reflect(Component)]
+pub struct PunchTimer(pub Timer);
+
 #[derive(Bundle)]
 struct PlayerBundle {
     player: Player,
@@ -61,6 +68,7 @@ struct PlayerBundle {
     collider: Collider,
     name: Name,
     movement: Movement,
+    punch_timer: PunchTimer,
     direction: Direction,
     health: Health,
     inventory: Inventory,
@@ -78,9 +86,10 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
         collider: Collider::cuboid(27., 63.),
         name: Name::new("Player"),
         movement: Movement {
-            speed: 500.0,   // TODO: Change it to 200.0 for release
+            speed: 500.0, // TODO: Change it to 200.0 for release
             running_speed: 250.0,
         },
+        punch_timer: PunchTimer(Timer::from_seconds(2.5, TimerMode::Once)),
         direction: Direction::Down,
         health: Health::default(),
         inventory: Inventory::new(3),
@@ -167,7 +176,10 @@ fn player_movement(
     }
 }
 
-fn update_sprite(mut player_query: Query<(&mut Handle<Image>, &Direction), With<Player>>, textures: Res<TextureAssets>) {
+fn update_sprite(
+    mut player_query: Query<(&mut Handle<Image>, &Direction), With<Player>>,
+    textures: Res<TextureAssets>,
+) {
     for (mut sprite, direction) in player_query.iter_mut() {
         *sprite = match direction {
             Direction::Up => textures.player_up.clone(),
@@ -175,6 +187,41 @@ fn update_sprite(mut player_query: Query<(&mut Handle<Image>, &Direction), With<
             Direction::Left => textures.player_left.clone(),
             Direction::Right => textures.player_right.clone(),
         };
+    }
+}
+
+fn punch_enemies(
+    mut player_query: Query<(&mut PunchTimer, &Transform, &Direction), With<Player>>,
+    mut enemy_query: Query<(&mut EnemyState, &Transform)>,
+    mut burst_actions: EventReader<BurstActions>,
+    time: Res<Time>,
+) {
+    let (mut punch_timer, player_transform, player_direction) = player_query.single_mut();
+
+    if !punch_timer.tick(time.delta()).finished() {
+        return;
+    }
+
+    for action in burst_actions.iter() {
+        if *action != BurstActions::Punch {
+            continue;
+        }
+
+        for (mut enemy_state, _) in enemy_query.iter_mut().filter(|(_, enemy_transform)| {
+            let vector =
+                enemy_transform.translation.truncate() - player_transform.translation.truncate();
+
+            let angle = vector.angle_between(Vec2::new(0., 1.));
+
+            vector.length() < 50.0
+                && *player_direction == Direction::from(Euler::from_radians(angle))
+        }) {
+            *enemy_state = EnemyState::Stun {
+                timer: Timer::from_seconds(1.5, TimerMode::Once),
+            };
+        }
+
+        punch_timer.reset();
     }
 }
 
@@ -186,7 +233,7 @@ fn damage_yourself(
     let mut player_health = player_query.single_mut();
 
     #[allow(clippy::collapsible_if)]
-    if cfg!(debug_assertions) && keyboard.just_pressed(KeyCode::Space) {
+    if cfg!(debug_assertions) && keyboard.just_pressed(KeyCode::Q) {
         if *player_health.take_damage(10.0) {
             state.set(GameState::GameOver);
         }
