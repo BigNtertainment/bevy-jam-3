@@ -6,7 +6,7 @@ use crate::{
     cleanup::cleanup,
     loading::TextureAssets,
     pill::Pill,
-    unit::{Health, Movement},
+    unit::{Health, Movement, Direction, Euler},
     GameState, WorldState,
 };
 
@@ -35,6 +35,7 @@ impl Plugin for PlayerPlugin {
                     player_movement,
                     pick_up_pills,
                     consume_pills.pipe(execute_pill_effects),
+                    update_sprite,
                     update_health_ui,
                     update_inventory_ui,
                     damage_yourself,
@@ -60,6 +61,7 @@ struct PlayerBundle {
     collider: Collider,
     name: Name,
     movement: Movement,
+    direction: Direction,
     health: Health,
     inventory: Inventory,
 }
@@ -68,7 +70,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn(PlayerBundle {
         player: Player::default(),
         sprite_bundle: SpriteBundle {
-            texture: textures.player.clone(),
+            texture: textures.player_down.clone(),
             transform: Transform::from_xyz(0., 0., 5.),
             ..Default::default()
         },
@@ -79,6 +81,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
             speed: 500.0,   // TODO: Change it to 200.0 for release
             running_speed: 250.0,
         },
+        direction: Direction::Down,
         health: Health::default(),
         inventory: Inventory::new(3),
     });
@@ -89,6 +92,7 @@ fn player_movement(
         (
             Entity,
             &mut Transform,
+            &mut Direction,
             &Collider,
             &Movement,
             Option<&MovementBoost>,
@@ -100,7 +104,7 @@ fn player_movement(
     actions: Res<Actions>,
     time: Res<Time>,
 ) {
-    for (entity, mut transform, collider, movement, movement_boost, dizziness) in
+    for (entity, mut transform, mut direction, collider, movement, movement_boost, dizziness) in
         player_query.iter_mut()
     {
         let speed = movement.speed * time.delta_seconds();
@@ -113,6 +117,12 @@ fn player_movement(
                 1.0
             }
             * if dizziness.is_some() { -1.0 } else { 1.0 };
+
+        if movement_vector != Vec2::ZERO {
+            let angle = movement_vector.angle_between(Vec2::new(0., 1.));
+
+            *direction = Direction::from(Euler::from_radians(angle));
+        }
 
         let horizontal_vector = Vec2::new(movement_vector.x, 0.);
         let vertical_vector = Vec2::new(0., movement_vector.y);
@@ -154,6 +164,17 @@ fn player_movement(
         let target = Vec3::new(horizontal_target.x, vertical_target.y, 0.);
 
         transform.translation = target;
+    }
+}
+
+fn update_sprite(mut player_query: Query<(&mut Handle<Image>, &Direction), With<Player>>, textures: Res<TextureAssets>) {
+    for (mut sprite, direction) in player_query.iter_mut() {
+        *sprite = match direction {
+            Direction::Up => textures.player_up.clone(),
+            Direction::Down => textures.player_down.clone(),
+            Direction::Left => textures.player_left.clone(),
+            Direction::Right => textures.player_right.clone(),
+        };
     }
 }
 

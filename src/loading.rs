@@ -34,9 +34,15 @@ pub struct AudioAssets {}
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
-    // TODO: Change this texture
-    #[asset(path = "textures/player.png")]
-    pub player: Handle<Image>,
+    // TODO: Change these textures
+    #[asset(path = "textures/player/player-up.png")]
+    pub player_up: Handle<Image>,
+    #[asset(path = "textures/player/player-down.png")]
+    pub player_down: Handle<Image>,
+    #[asset(path = "textures/player/player-left.png")]
+    pub player_left: Handle<Image>,
+    #[asset(path = "textures/player/player-right.png")]
+    pub player_right: Handle<Image>,
     // TODO: Change this texture
     #[asset(path = "textures/wall.png")]
     pub wall: Handle<Image>,
