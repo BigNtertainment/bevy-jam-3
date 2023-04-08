@@ -11,7 +11,7 @@
 	"iid": "d1975410-c640-11ed-9666-15d5f84b017a",
 	"jsonVersion": "1.2.5",
 	"appBuildId": 464870,
-	"nextUid": 5,
+	"nextUid": 7,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -85,6 +85,25 @@
 			"customData": [],
 			"savedSelections": [],
 			"cachedPixelData": { "opaqueTiles": "1", "averageColors": "f223" }
+		},
+		{
+			"__cWid": 1,
+			"__cHei": 1,
+			"identifier": "Wall",
+			"uid": 6,
+			"relPath": "../textures/wall.png",
+			"embedAtlas": null,
+			"pxWid": 64,
+			"pxHei": 64,
+			"tileGridSize": 64,
+			"spacing": 0,
+			"padding": 0,
+			"tags": [],
+			"tagsSourceEnumUid": null,
+			"enumTags": [],
+			"customData": [],
+			"savedSelections": [],
+			"cachedPixelData": { "opaqueTiles": "1", "averageColors": "faaa" }
 		}
 	], "enums": [], "externalEnums": [], "levelFields": [] },
 	"levels": [

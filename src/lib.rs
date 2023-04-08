@@ -7,7 +7,6 @@ mod menu;
 mod pill;
 mod player;
 mod unit;
-mod world;
 
 use actions::ActionsPlugin;
 use bevy::app::App;
@@ -27,7 +26,6 @@ use loading::LoadingPlugin;
 use menu::MenuPlugin;
 use pill::PillPlugin;
 use player::PlayerPlugin;
-use world::WorldPlugin;
 
 // This example game uses States to separate logic
 // See https://bevy-cheatbook.github.io/programming/states.html
@@ -55,8 +53,7 @@ impl Plugin for GamePlugin {
             .add_plugin(PlayerPlugin)
             .add_plugin(PillPlugin)
             .add_plugin(LevelPlugin)
-            .add_plugin(EnemyPlugin)
-            .add_plugin(WorldPlugin);
+            .add_plugin(EnemyPlugin);
 
         #[cfg(debug_assertions)]
         {
