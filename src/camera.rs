@@ -1,13 +1,17 @@
 use bevy::{
+    core_pipeline::clear_color::ClearColorConfig,
     prelude::*,
+    reflect::TypeUuid,
     render::{
+        camera::RenderTarget,
         render_resource::{
-            Extent3d, TextureDescriptor, TextureDimension, TextureFormat, TextureUsages, AsBindGroup, ShaderRef,
+            AsBindGroup, Extent3d, ShaderRef, TextureDescriptor, TextureDimension, TextureFormat,
+            TextureUsages,
         },
         texture::BevyDefault,
-        view::RenderLayers, camera::RenderTarget,
+        view::RenderLayers,
     },
-    sprite::{Material2dPlugin, Material2d, MaterialMesh2dBundle}, reflect::TypeUuid, core_pipeline::clear_color::ClearColorConfig,
+    sprite::{Material2d, Material2dPlugin, MaterialMesh2dBundle},
 };
 
 use crate::GameState;
@@ -16,10 +20,8 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app
-        .add_plugin(Material2dPlugin::<DefaultPostMaterial>::default())
-        .add_system(camera_setup.in_schedule(OnEnter(GameState::Menu)));
-        
+        app.add_plugin(Material2dPlugin::<DefaultPostMaterial>::default())
+            .add_system(camera_setup.in_schedule(OnEnter(GameState::Menu)));
     }
 }
 
