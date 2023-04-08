@@ -11,7 +11,7 @@ use crate::{
 };
 
 use self::{
-    effect::{Dizziness, Invincibility, Invisibility, MovementBoost, EffectPlugin, Blindness},
+    effect::{Blindness, Dizziness, EffectPlugin, Invincibility, Invisibility, MovementBoost},
     inventory::Inventory,
     ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
 };

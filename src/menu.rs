@@ -39,7 +39,6 @@ fn setup_menu(
     font_assets: Res<FontAssets>,
     button_colors: Res<ButtonColors>,
 ) {
-    commands.spawn(Camera2dBundle::default());
     commands
         .spawn(NodeBundle {
             style: Style {
