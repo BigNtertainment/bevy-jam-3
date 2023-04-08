@@ -80,12 +80,15 @@ impl Default for EnemyBundle {
                 Animation::new(AnimationBounds::new(0, 19), Duration::from_millis(80)),
                 // Stun
                 Animation::new(AnimationBounds::new(20, 21), Duration::from_millis(350)),
+                // Shooting
+                Animation::new(AnimationBounds::new(22, 52), Duration::from_millis(80)),
             ],
             0,
         );
 
         animation_manager.add_state("walk".to_string(), false);
         animation_manager.add_state("stun".to_string(), false);
+        animation_manager.add_state("shoot".to_string(), false);
 
         animation_manager.add_graph_edge(
             0,
@@ -127,6 +130,24 @@ impl Default for EnemyBundle {
             0,
             AnimationTransitionCondition::new(Box::new(|state| !state["stun"]))
                 .with_mode(AnimationTransitionMode::Immediate),
+        );
+
+        animation_manager.add_graph_edge(
+            0,
+            3,
+            AnimationTransitionCondition::new(Box::new(|state| state["shoot"]))
+                .with_mode(AnimationTransitionMode::Immediate),
+        );
+        animation_manager.add_graph_edge(
+            1,
+            3,
+            AnimationTransitionCondition::new(Box::new(|state| state["shoot"]))
+                .with_mode(AnimationTransitionMode::Immediate),
+        );
+        animation_manager.add_graph_edge(
+            2,
+            0,
+            AnimationTransitionCondition::new(Box::new(|state| !state["shoot"])),
         );
 
         Self {

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_spritesheet_animation::animation_manager::AnimationManager;
 
 use crate::{player::Player, unit::Health, GameState};
 
@@ -21,14 +22,23 @@ impl Plugin for EnemyAttackPlugin {
 pub struct EnemyAttackTimer(pub Timer);
 
 fn attack_player(
-    mut enemy_query: Query<(&EnemyState, &mut EnemyAttackTimer, &Transform)>,
+    mut enemy_query: Query<(
+        &EnemyState,
+        &mut EnemyAttackTimer,
+        &mut AnimationManager,
+        &Transform,
+    )>,
     mut player_query: Query<(&Transform, &mut Health), With<Player>>,
     time: Res<Time>,
     mut state: ResMut<NextState<GameState>>,
 ) {
     let (player_transform, mut player_health) = player_query.single_mut();
 
-    for (enemy_state, mut enemy_timer, enemy_transform) in enemy_query.iter_mut() {
+    for (enemy_state, mut enemy_timer, mut animation_manager, enemy_transform) in
+    enemy_query.iter_mut()
+    {
+        animation_manager.set_state("shoot".to_string(), false).unwrap();
+
         if matches!(*enemy_state, EnemyState::Stun { .. }) {
             continue;
         }
@@ -42,10 +52,12 @@ fn attack_player(
         {
             enemy_timer.tick(time.delta());
 
-            if enemy_timer.just_finished()
-                && *player_health.take_damage(rand::random::<f32>() * 5.0 + 20.0)
-            {
-                state.set(GameState::GameOver);
+            if enemy_timer.just_finished() {
+                if *player_health.take_damage(rand::random::<f32>() * 5.0 + 20.0) {
+                    state.set(GameState::GameOver);
+                }
+
+                animation_manager.set_state("shoot".to_string(), true).unwrap();
             }
         }
     }
