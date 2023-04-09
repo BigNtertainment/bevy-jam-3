@@ -23,7 +23,7 @@ pub struct EnemyAttackTimer(pub Timer);
 
 fn attack_player(
     mut enemy_query: Query<(
-        &EnemyState,
+        &mut EnemyState,
         &mut EnemyAttackTimer,
         &mut AnimationManager,
         &Transform,
@@ -34,7 +34,7 @@ fn attack_player(
 ) {
     let (player_transform, mut player_health) = player_query.single_mut();
 
-    for (enemy_state, mut enemy_timer, mut animation_manager, enemy_transform) in
+    for (mut enemy_state, mut enemy_timer, mut animation_manager, enemy_transform) in
     enemy_query.iter_mut()
     {
         animation_manager.set_state("shoot".to_string(), false).unwrap();
@@ -43,7 +43,7 @@ fn attack_player(
             continue;
         }
 
-        if matches!(enemy_state, EnemyState::Alert { .. })
+        if matches!(*enemy_state, EnemyState::Alert { .. })
             && player_transform
                 .translation
                 .truncate()
@@ -55,7 +55,9 @@ fn attack_player(
             if enemy_timer.just_finished() {
                 if *player_health.take_damage(rand::random::<f32>() * 5.0 + 20.0) {
                     state.set(GameState::GameOver);
-                }
+    
+                *enemy_state = EnemyState::Idle;
+            }
 
                 animation_manager.set_state("shoot".to_string(), true).unwrap();
             }
