@@ -34,9 +34,7 @@ impl Plugin for EnemyPlugin {
             .add_plugin(EnemySightPlugin)
             .add_plugin(EnemyAttackPlugin)
             .add_system(debug_spawn.in_schedule(OnEnter(GameState::Playing)))
-            .add_systems(
-                (update_sprites, handle_stunned_enemies).in_set(OnUpdate(WorldState::Yes)),
-            )
+            .add_systems((update_sprites, update_z_index, handle_stunned_enemies).in_set(OnUpdate(WorldState::Yes)))
             .add_system(cleanup::<EnemyState>.in_schedule(OnExit(WorldState::Yes)));
     }
 }
@@ -246,16 +244,32 @@ fn update_sprites(
     }
 }
 
-fn handle_stunned_enemies(mut enemy_query: Query<(&mut EnemyState, &mut AnimationManager)>, time: Res<Time>) {
+fn update_z_index(mut enemy_query: Query<(&mut Transform, &Direction), With<EnemyState>>) {
+    for (mut transform, direction) in enemy_query.iter_mut() {
+        transform.translation.z = match direction {
+            Direction::Up => 6.,
+            _ => 4.,
+        }
+    }
+}
+
+fn handle_stunned_enemies(
+    mut enemy_query: Query<(&mut EnemyState, &mut AnimationManager)>,
+    time: Res<Time>,
+) {
     for (mut enemy_state, mut animation_manager) in enemy_query.iter_mut() {
         if let EnemyState::Stun { timer } = enemy_state.as_mut() {
             timer.tick(time.delta());
 
-            animation_manager.set_state("stun".to_string(), true).unwrap();
+            animation_manager
+                .set_state("stun".to_string(), true)
+                .unwrap();
 
             if timer.finished() {
                 *enemy_state = EnemyState::Idle;
-                animation_manager.set_state("stun".to_string(), false).unwrap();
+                animation_manager
+                    .set_state("stun".to_string(), false)
+                    .unwrap();
             }
         }
     }

@@ -242,7 +242,7 @@ fn player_movement(
             }
         };
 
-        let target = Vec3::new(horizontal_target.x, vertical_target.y, 0.);
+        let target = Vec3::new(horizontal_target.x, vertical_target.y, transform.translation.z);
 
         animation_manager
             .set_state("walk".to_string(), target != transform.translation)
