@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, RigidBody};
 use bevy_spritesheet_animation::{
     animation::{Animation, AnimationBounds},
     animation_graph::{AnimationTransitionCondition, AnimationTransitionMode},
-    animation_manager::AnimationManager,
+    animation_manager::{AnimationManager, transition_animations},
 };
 
 use crate::{
@@ -42,7 +42,7 @@ impl Plugin for PlayerPlugin {
             .add_systems(
                 (
                     player_movement,
-                    punch_enemies,
+                    punch_enemies.after(transition_animations),
                     pick_up_pills,
                     consume_pills.pipe(execute_pill_effects),
                     update_sprite,
@@ -269,7 +269,7 @@ fn update_sprite(
 fn spawn_player_body(
     mut commands: Commands,
     player_query: Query<(Entity, &Transform, &Health), With<Player>>,
-    textures: Res<TextureAssets>
+    textures: Res<TextureAssets>,
 ) {
     for (player_entity, player_transform, player_health) in player_query.iter() {
         if player_health.get_health() <= 0. {
