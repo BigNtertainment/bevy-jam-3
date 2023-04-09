@@ -40,10 +40,12 @@ pub struct TextureAssets {
     #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
     #[asset(path = "textures/player/player-down.png")]
     pub player_down: Handle<TextureAtlas>,
+    #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
     #[asset(path = "textures/player/player-left.png")]
-    pub player_left: Handle<Image>,
+    pub player_left: Handle<TextureAtlas>,
+    #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
     #[asset(path = "textures/player/player-right.png")]
-    pub player_right: Handle<Image>,
+    pub player_right: Handle<TextureAtlas>,
     // TODO: Change this texture
     #[asset(path = "textures/wall.png")]
     pub wall: Handle<Image>,

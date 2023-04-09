@@ -253,8 +253,8 @@ fn update_sprite(
         *sprite = match direction {
             Direction::Up => textures.player_down.clone(),
             Direction::Down => textures.player_down.clone(),
-            Direction::Left => textures.player_down.clone(),
-            Direction::Right => textures.player_down.clone(),
+            Direction::Left => textures.player_left.clone(),
+            Direction::Right => textures.player_right.clone(),
         };
     }
 }
