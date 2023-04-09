@@ -214,9 +214,9 @@ pub fn update_health_ui(
 
     let mut health_ui = health_ui_query.single_mut();
     health_ui.sections[0].value = format!(
-        "{}/{}",
-        player_health.get_health().to_string(),
-        player_health.get_max_health().to_string()
+        "{:.0}/{}",
+        player_health.get_health(),
+        player_health.get_max_health()
     );
 }
 

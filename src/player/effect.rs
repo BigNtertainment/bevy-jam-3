@@ -3,7 +3,13 @@ use std::marker::PhantomData;
 use bevy::{ecs::schedule::SystemConfigs, prelude::*};
 use drug_test_proc_macros::Temporary;
 
-use crate::{loading::FontAssets, GameState};
+use crate::{
+    enemy::EnemyState,
+    loading::FontAssets,
+    pill::{Pill, PillEffect},
+    unit::Health,
+    GameState,
+};
 
 use super::{ui::EffectsUI, Player};
 
@@ -23,6 +29,79 @@ impl Plugin for EffectPlugin {
             .add_systems(effect_systems::<Blindness>())
             .add_system(invisibility_vfx.in_set(OnUpdate(GameState::Playing)))
             .add_system(reset_invisibility_vfx.in_set(OnUpdate(GameState::Playing)));
+    }
+}
+
+pub fn execute_pill_effects(
+    In(pills): In<Vec<Pill>>,
+    mut commands: Commands,
+    mut player_query: Query<(Entity, &mut Health, &Transform), With<Player>>,
+    mut enemy_query: Query<(&mut EnemyState, &Transform)>,
+) {
+    let (player_entity, mut player_health, player_transform) = player_query.single_mut();
+
+    for pill in pills {
+        for effect in [pill.main_effect, pill.side_effect] {
+            match effect {
+                PillEffect::Heal { amount } => {
+                    player_health.heal(amount);
+                }
+                PillEffect::Speed { amount, duration } => {
+                    commands.entity(player_entity).insert(MovementBoost {
+                        timer: Timer::new(duration, TimerMode::Once),
+                        multiplier: amount,
+                    });
+                }
+                PillEffect::ToxicFart => {
+                    for (mut enemy_state, enemy_transform) in enemy_query.iter_mut() {
+                        let distance = enemy_transform
+                            .translation
+                            .truncate()
+                            .distance(player_transform.translation.truncate());
+
+                        if distance < 150.0 {
+                            *enemy_state = EnemyState::Stun {
+                                timer: Timer::from_seconds(5., TimerMode::Once),
+                            };
+                        }
+                    }
+                }
+                PillEffect::Invisibility { duration } => {
+                    commands.entity(player_entity).insert(Invisibility {
+                        timer: Timer::new(duration, TimerMode::Once),
+                    });
+                }
+                PillEffect::Invincibility { duration } => {
+                    commands.entity(player_entity).insert(Invincibility {
+                        timer: Timer::new(duration, TimerMode::Once),
+                    });
+                }
+                PillEffect::Blindness { duration } => {
+                    commands.entity(player_entity).insert(Blindness {
+                        timer: Timer::new(duration, TimerMode::Once),
+                    });
+                }
+                PillEffect::Dizziness { duration } => {
+                    commands.entity(player_entity).insert(Dizziness {
+                        timer: Timer::new(duration, TimerMode::Once),
+                    });
+                }
+                PillEffect::Sneeze => {
+                    for (mut enemy_state, enemy_transform) in enemy_query.iter_mut() {
+                        let distance = enemy_transform
+                            .translation
+                            .truncate()
+                            .distance(player_transform.translation.truncate());
+
+                        if distance < 450.0 && !matches!(*enemy_state, EnemyState::Stun { .. }) {
+                            *enemy_state = EnemyState::Alert {
+                                target: player_transform.translation.truncate(),
+                            };
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -55,9 +134,9 @@ pub struct MovementBoost {
 impl EffectVisuals for MovementBoost {
     fn get_color(&self) -> Color {
         if self.multiplier > 1.0 {
-            Color::hex("e7eb1a").unwrap()
+            Color::hex("eac516").unwrap()
         } else {
-            Color::hex("c9851e").unwrap()
+            Color::hex("daa11d").unwrap()
         }
     }
 
@@ -78,7 +157,7 @@ pub struct Invisibility {
 
 impl EffectVisuals for Invisibility {
     fn get_color(&self) -> Color {
-        Color::hex("0bc8d3").unwrap()
+        Color::hex("00ecc7").unwrap()
     }
 
     fn get_name(&self) -> String {
@@ -94,7 +173,7 @@ pub struct Invincibility {
 
 impl EffectVisuals for Invincibility {
     fn get_color(&self) -> Color {
-        Color::hex("810de4").unwrap()
+        Color::hex("dfc1ff").unwrap()
     }
 
     fn get_name(&self) -> String {
