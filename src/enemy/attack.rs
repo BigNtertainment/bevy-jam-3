@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_spritesheet_animation::animation_manager::AnimationManager;
+use bevy_spritesheet_animation::animation_manager::{transition_animations, AnimationManager};
 
 use crate::{player::Player, unit::Health, GameState};
 
@@ -12,6 +12,7 @@ impl Plugin for EnemyAttackPlugin {
         app.register_type::<EnemyAttackTimer>().add_system(
             attack_player
                 .after(see_player)
+                .after(transition_animations)
                 .in_set(OnUpdate(GameState::Playing)),
         );
     }
@@ -35,9 +36,11 @@ fn attack_player(
     let (player_transform, mut player_health) = player_query.single_mut();
 
     for (mut enemy_state, mut enemy_timer, mut animation_manager, enemy_transform) in
-    enemy_query.iter_mut()
+        enemy_query.iter_mut()
     {
-        animation_manager.set_state("shoot".to_string(), false).unwrap();
+        animation_manager
+            .set_state("shoot".to_string(), false)
+            .unwrap();
 
         if matches!(*enemy_state, EnemyState::Stun { .. }) {
             continue;
@@ -48,18 +51,20 @@ fn attack_player(
                 .translation
                 .truncate()
                 .distance(enemy_transform.translation.truncate())
-                < 15.
+                < 25.
         {
             enemy_timer.tick(time.delta());
 
             if enemy_timer.just_finished() {
                 if *player_health.take_damage(rand::random::<f32>() * 5.0 + 20.0) {
                     state.set(GameState::GameOver);
-    
-                *enemy_state = EnemyState::Idle;
-            }
 
-                animation_manager.set_state("shoot".to_string(), true).unwrap();
+                    *enemy_state = EnemyState::Idle;
+                }
+
+                animation_manager
+                    .set_state("shoot".to_string(), true)
+                    .unwrap();
             }
         }
     }

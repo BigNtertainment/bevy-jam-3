@@ -34,7 +34,6 @@ pub struct AudioAssets {}
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
-    // TODO: Change these textures
     #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
     #[asset(path = "textures/player/player-up.png")]
     pub player_up: Handle<TextureAtlas>,
@@ -49,13 +48,12 @@ pub struct TextureAssets {
     pub player_right: Handle<TextureAtlas>,
     #[asset(path = "textures/player/player-body.png")]
     pub player_body: Handle<Image>,
-    // TODO: Change this texture
     #[asset(path = "textures/wall.png")]
     pub wall: Handle<Image>,
-    #[asset(texture_atlas(tile_size_x=200., tile_size_y=260., columns=5, rows=6))]
+    #[asset(texture_atlas(tile_size_x=200., tile_size_y=260., columns=5, rows=9))]
     #[asset(path = "textures/enemy/enemy-up.png")]
     pub enemy_up: Handle<TextureAtlas>,
-    #[asset(texture_atlas(tile_size_x=200., tile_size_y=300., columns=5, rows=5))]
+    #[asset(texture_atlas(tile_size_x=200., tile_size_y=300., columns=5, rows=9))]
     #[asset(path = "textures/enemy/enemy-down.png")]
     pub enemy_down: Handle<TextureAtlas>,
     #[asset(texture_atlas(tile_size_x=640., tile_size_y=480., columns=5, rows=10))]

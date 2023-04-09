@@ -81,7 +81,7 @@ impl Default for EnemyBundle {
                 // Stun
                 Animation::new(AnimationBounds::new(20, 21), Duration::from_millis(350)),
                 // Shooting
-                Animation::new(AnimationBounds::new(22, 52), Duration::from_millis(80)),
+                Animation::new(AnimationBounds::new(22, 41), Duration::from_millis(80)),
             ],
             0,
         );
@@ -145,9 +145,9 @@ impl Default for EnemyBundle {
                 .with_mode(AnimationTransitionMode::Immediate),
         );
         animation_manager.add_graph_edge(
-            2,
+            3,
             0,
-            AnimationTransitionCondition::new(Box::new(|state| !state["shoot"])),
+            AnimationTransitionCondition::new(Box::new(|_| true)),
         );
 
         Self {

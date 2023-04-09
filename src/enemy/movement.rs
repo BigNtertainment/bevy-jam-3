@@ -3,9 +3,10 @@ use bevy_pathmesh::PathMesh;
 use bevy_spritesheet_animation::animation_manager::AnimationManager;
 
 use crate::{
+    player::Player,
     unit::{Direction, Euler, Movement},
     world::{NavMesh, World},
-    WorldState,
+    GameState,
 };
 
 use super::EnemyState;
@@ -16,7 +17,7 @@ impl Plugin for EnemyMovementPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<EnemyMovementTarget>().add_systems(
             (enemy_movement, enemy_guard_area_timer, avoid_overlap)
-                .in_set(OnUpdate(WorldState::Yes)),
+                .in_set(OnUpdate(GameState::Playing)),
         );
     }
 }
@@ -95,11 +96,13 @@ pub fn enemy_movement(
         &mut Direction,
         &mut Transform,
     )>,
+    player_query: Query<&Transform, (With<Player>, Without<EnemyState>)>,
     nav_mesh_query: Query<&NavMesh, With<World>>,
     mesh_assets: Res<Assets<PathMesh>>,
     time: Res<Time>,
 ) {
     let nav_mesh = nav_mesh_query.single();
+    let player_transform = player_query.single();
 
     for (
         enemy_state,
@@ -152,6 +155,15 @@ pub fn enemy_movement(
                     target
                 );
             }
+        }
+
+        let distance = player_transform
+            .translation
+            .truncate()
+            .distance(enemy_transform.translation.truncate());
+
+        if distance < 15.0 && matches!(*enemy_state, EnemyState::Alert { .. }) {
+            continue;
         }
 
         if let Some(target) = enemy_movement_target.path.get(0) {
