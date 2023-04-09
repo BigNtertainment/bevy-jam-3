@@ -258,7 +258,7 @@ fn update_sprite(
 ) {
     for (mut sprite, direction) in player_query.iter_mut() {
         *sprite = match direction {
-            Direction::Up => textures.player_down.clone(),
+            Direction::Up => textures.player_up.clone(),
             Direction::Down => textures.player_down.clone(),
             Direction::Left => textures.player_left.clone(),
             Direction::Right => textures.player_right.clone(),

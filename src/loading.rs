@@ -35,8 +35,9 @@ pub struct AudioAssets {}
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
     // TODO: Change these textures
+    #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
     #[asset(path = "textures/player/player-up.png")]
-    pub player_up: Handle<Image>,
+    pub player_up: Handle<TextureAtlas>,
     #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
     #[asset(path = "textures/player/player-down.png")]
     pub player_down: Handle<TextureAtlas>,
