@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, RigidBody};
 use bevy_spritesheet_animation::{
     animation::{Animation, AnimationBounds},
     animation_graph::{AnimationTransitionCondition, AnimationTransitionMode},
-    animation_manager::{AnimationManager, transition_animations},
+    animation_manager::{transition_animations, AnimationManager},
 };
 
 use crate::{

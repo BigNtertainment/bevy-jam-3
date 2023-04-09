@@ -81,7 +81,7 @@ impl Default for EnemyBundle {
                 // Stun
                 Animation::new(AnimationBounds::new(20, 21), Duration::from_millis(350)),
                 // Shooting
-                Animation::new(AnimationBounds::new(22, 41), Duration::from_millis(80)),
+                Animation::new(AnimationBounds::new(22, 41), Duration::from_millis(20)),
             ],
             0,
         );
