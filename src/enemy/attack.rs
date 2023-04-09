@@ -21,19 +21,19 @@ impl Plugin for EnemyAttackPlugin {
 pub struct EnemyAttackTimer(pub Timer);
 
 fn attack_player(
-    mut enemy_query: Query<(&EnemyState, &mut EnemyAttackTimer, &Transform)>,
+    mut enemy_query: Query<(&mut EnemyState, &mut EnemyAttackTimer, &Transform)>,
     mut player_query: Query<(&Transform, &mut Health), With<Player>>,
     time: Res<Time>,
     mut state: ResMut<NextState<GameState>>,
 ) {
     let (player_transform, mut player_health) = player_query.single_mut();
 
-    for (enemy_state, mut enemy_timer, enemy_transform) in enemy_query.iter_mut() {
+    for (mut enemy_state, mut enemy_timer, enemy_transform) in enemy_query.iter_mut() {
         if matches!(*enemy_state, EnemyState::Stun { .. }) {
             continue;
         }
 
-        if matches!(enemy_state, EnemyState::Alert { .. })
+        if matches!(*enemy_state, EnemyState::Alert { .. })
             && player_transform
                 .translation
                 .truncate()
@@ -46,6 +46,8 @@ fn attack_player(
                 && *player_health.take_damage(rand::random::<f32>() * 5.0 + 20.0)
             {
                 state.set(GameState::GameOver);
+
+                *enemy_state = EnemyState::Idle;
             }
         }
     }

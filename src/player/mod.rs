@@ -52,7 +52,10 @@ impl Plugin for PlayerPlugin {
                 )
                     .in_set(OnUpdate(GameState::Playing)),
             )
-            .add_system(cleanup::<Player>.in_schedule(OnEnter(WorldState::No)))
+            .add_system(spawn_player_body.in_set(OnUpdate(WorldState::Yes)))
+            .add_systems(
+                (cleanup::<Player>, cleanup::<PlayerBody>).in_schedule(OnEnter(WorldState::No)),
+            )
             .add_system(cleanup::<PlayerUI>.in_schedule(OnExit(GameState::Playing)));
     }
 }
@@ -60,6 +63,10 @@ impl Plugin for PlayerPlugin {
 #[derive(Reflect, Component, Copy, Clone, Default, Debug, PartialEq, Eq)]
 #[reflect(Component)]
 pub struct Player;
+
+#[derive(Reflect, Component, Copy, Clone, Default, Debug, PartialEq, Eq)]
+#[reflect(Component)]
+pub struct PlayerBody;
 
 #[derive(Reflect, Component, Clone, Default, Debug, Deref, DerefMut)]
 #[reflect(Component)]
@@ -259,6 +266,25 @@ fn update_sprite(
     }
 }
 
+fn spawn_player_body(
+    mut commands: Commands,
+    player_query: Query<(Entity, &Transform, &Health), With<Player>>,
+    textures: Res<TextureAssets>
+) {
+    for (player_entity, player_transform, player_health) in player_query.iter() {
+        if player_health.get_health() <= 0. {
+            commands.entity(player_entity).despawn_recursive();
+            commands
+                .spawn(SpriteBundle {
+                    transform: player_transform.clone(),
+                    texture: textures.player_body.clone(),
+                    ..Default::default()
+                })
+                .insert(PlayerBody);
+        }
+    }
+}
+
 fn punch_enemies(
     mut player_query: Query<
         (
@@ -276,7 +302,9 @@ fn punch_enemies(
     let (mut punch_timer, mut animation_manager, player_transform, player_direction) =
         player_query.single_mut();
 
-    animation_manager.set_state("punch".to_string(), false).unwrap();
+    animation_manager
+        .set_state("punch".to_string(), false)
+        .unwrap();
 
     if !punch_timer.tick(time.delta()).finished() {
         return;
@@ -301,7 +329,9 @@ fn punch_enemies(
             };
         }
 
-        animation_manager.set_state("punch".to_string(), true).unwrap();
+        animation_manager
+            .set_state("punch".to_string(), true)
+            .unwrap();
 
         punch_timer.reset();
     }

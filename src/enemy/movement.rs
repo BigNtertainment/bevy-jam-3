@@ -5,7 +5,7 @@ use bevy_spritesheet_animation::animation_manager::AnimationManager;
 use crate::{
     unit::{Direction, Euler, Movement},
     world::{NavMesh, World},
-    GameState,
+    WorldState,
 };
 
 use super::EnemyState;
@@ -16,7 +16,7 @@ impl Plugin for EnemyMovementPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<EnemyMovementTarget>().add_systems(
             (enemy_movement, enemy_guard_area_timer, avoid_overlap)
-                .in_set(OnUpdate(GameState::Playing)),
+                .in_set(OnUpdate(WorldState::Yes)),
         );
     }
 }
