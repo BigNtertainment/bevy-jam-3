@@ -18,9 +18,8 @@ impl Plugin for LevelPlugin {
                 level_background: LevelBackground::Nonexistent,
                 ..Default::default()
             })
-            .register_ldtk_int_cell::<WallMarkerBundle>(1)
-            .add_system(ldtk_setup.in_schedule(OnEnter(GameState::Playing)))
-            .add_system(spawn_walls.in_set(OnUpdate(GameState::Playing)));
+            .register_ldtk_int_cell::<WallBundle>(1)
+            .add_system(ldtk_setup.in_schedule(OnEnter(GameState::Playing)));
     }
 }
 
@@ -28,13 +27,17 @@ impl Plugin for LevelPlugin {
 #[reflect(Component)]
 pub struct Wall;
 
-#[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
-pub struct WallMarkerBundle {
-    wall: Wall,
+pub fn grid_collider(grid_cell: IntGridCell) -> Collider {
+    match grid_cell.value {
+        1 => Collider::cuboid(32.0, 32.0),
+        _ => Collider::cuboid(1.0, 1.0),
+    }
 }
 
-#[derive(Bundle)]
+#[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
 pub struct WallBundle {
+    wall: Wall,
+    #[with(grid_collider)]
     collider: Collider,
 }
 
@@ -43,15 +46,4 @@ fn ldtk_setup(mut commands: Commands, level_assets: Res<LevelAssets>) {
         ldtk_handle: level_assets.ldtk_handle.clone(),
         ..Default::default()
     });
-}
-
-fn spawn_walls(
-    mut commands: Commands,
-    wall_query: Query<Entity, Added<Wall>>,
-) {
-    for wall in wall_query.iter() {
-        commands.entity(wall).insert(WallBundle {
-            collider: Collider::cuboid(32., 32.),
-        });
-    }
 }
