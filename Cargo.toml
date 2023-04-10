@@ -2,7 +2,7 @@
 name = "drug_test"
 version = "0.1.0"
 publish = false
-authors = ["Dawid Piotrowski", "Tymon Płochocki", "Kajetan Witkowski", "Sebastian Flajszer"]
+authors = ["BigNtertainment", "Dawid Piotrowski", "Tymon Płochocki", "Kajetan Witkowski", "Sebastian Flajszer", "Oskar Płaziński", "Szymon Jałowiecki"]
 edition = "2021"
 exclude = ["dist", "build", "assets", "credits"]
 
@@ -31,7 +31,8 @@ default = ["bevy/animation", "bevy/bevy_asset", "bevy/bevy_scene", "bevy/bevy_wi
 [dependencies]
 bevy = { version = "0.10", default-features = false }
 bevy_kira_audio = { version = "0.15" }
-bevy_asset_loader = { version = "0.15" }
+bevy_asset_loader = { version = "0.16", features=["2d"] }
+bevy-spritesheet-animation = { git="https://github.com/BigNtertainment/bevy-spritesheet-animation", branch="bevy-jam-3" }
 rand = { version = "0.8.3" }
 
 # keep the following in sync with Bevy's dependencies
@@ -41,6 +42,10 @@ bevy_rapier2d = "0.21.0"
 bevy_console = "0.7.0"
 bevy-inspector-egui = "0.18.3"
 bevy_ecs_ldtk = "0.6.0"
+
+drug_test_proc_macros = { path = "./drug-test-proc-macros" }
+bevy_pathmesh = "0.4.0"
+polyanya = "0.3.0"
 
 [build-dependencies]
 embed-resource = "1.4"

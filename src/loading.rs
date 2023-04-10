@@ -36,15 +36,44 @@ pub struct AudioAssets {}
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {
-    // TODO: Change this texture
-    #[asset(path = "textures/player.png")]
-    pub player: Handle<Image>,
-    // TODO: Change this texture
+    #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
+    #[asset(path = "textures/player/player-up.png")]
+    pub player_up: Handle<TextureAtlas>,
+    #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
+    #[asset(path = "textures/player/player-down.png")]
+    pub player_down: Handle<TextureAtlas>,
+    #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
+    #[asset(path = "textures/player/player-left.png")]
+    pub player_left: Handle<TextureAtlas>,
+    #[asset(texture_atlas(tile_size_x=64., tile_size_y=128., columns=5, rows=10))]
+    #[asset(path = "textures/player/player-right.png")]
+    pub player_right: Handle<TextureAtlas>,
+    #[asset(path = "textures/player/player-body.png")]
+    pub player_body: Handle<Image>,
     #[asset(path = "textures/wall.png")]
     pub wall: Handle<Image>,
-    // TODO: Change this texture
-    #[asset(path = "textures/pill.png")]
-    pub pill: Handle<Image>,
+    #[asset(texture_atlas(tile_size_x=200., tile_size_y=260., columns=5, rows=9))]
+    #[asset(path = "textures/enemy/enemy-up.png")]
+    pub enemy_up: Handle<TextureAtlas>,
+    #[asset(texture_atlas(tile_size_x=200., tile_size_y=300., columns=5, rows=9))]
+    #[asset(path = "textures/enemy/enemy-down.png")]
+    pub enemy_down: Handle<TextureAtlas>,
+    #[asset(texture_atlas(tile_size_x=640., tile_size_y=480., columns=5, rows=10))]
+    #[asset(path = "textures/enemy/enemy-left.png")]
+    pub enemy_left: Handle<TextureAtlas>,
+    #[asset(texture_atlas(tile_size_x=640., tile_size_y=480., columns=5, rows=10))]
+    #[asset(path = "textures/enemy/enemy-right.png")]
+    pub enemy_right: Handle<TextureAtlas>,
+    #[asset(path = "textures/pills/health_pill.png")]
+    pub health_pill: Handle<Image>,
+    #[asset(path = "textures/pills/speed_pill.png")]
+    pub speed_pill: Handle<Image>,
+    #[asset(path = "textures/pills/toxic_fart_pill.png")]
+    pub toxic_fart_pill: Handle<Image>,
+    #[asset(path = "textures/pills/invisibility_pill.png")]
+    pub invisibility_pill: Handle<Image>,
+    #[asset(path = "textures/pills/invincibility_pill.png")]
+    pub invincibility_pill: Handle<Image>,
 }
 
 #[derive(AssetCollection, Resource)]

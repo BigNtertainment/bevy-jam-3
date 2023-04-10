@@ -39,11 +39,7 @@ impl Health {
     }
 
     pub fn heal(&mut self, amount: f32) {
-        self.health += amount;
-
-        if self.health > self.max_health {
-            self.health = self.max_health;
-        }
+        self.health = (self.health + amount).clamp(1.0, self.max_health);
     }
 
     pub fn get_health(&self) -> f32 {
@@ -63,4 +59,49 @@ impl Health {
 #[reflect(Component)]
 pub struct Movement {
     pub speed: f32,
+    pub running_speed: f32,
+}
+
+#[derive(Default, Reflect, Component, Copy, Clone, Debug, PartialEq, Eq)]
+#[reflect(Component)]
+pub enum Direction {
+    #[default]
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+#[derive(Deref, DerefMut, Copy, Clone, Debug, PartialEq, PartialOrd)]
+pub struct Euler(pub f32);
+
+impl Euler {
+    pub fn from_radians(radians: f32) -> Self {
+        Self(radians.to_degrees().rem_euclid(360.))
+    }
+}
+
+impl From<Direction> for Euler {
+    fn from(direction: Direction) -> Self {
+        Euler(match direction {
+            Direction::Up => 0.0,
+            Direction::Right => 90.0,
+            Direction::Down => 180.0,
+            Direction::Left => 270.0,
+        })
+    }
+}
+
+impl From<Euler> for Direction {
+    fn from(angle: Euler) -> Self {
+        match angle.0 {
+            angle if (315.0..=360.0).contains(&angle) || (0.0..=45.0).contains(&angle) => {
+                Direction::Up
+            }
+            angle if (45.0..=135.0).contains(&angle) => Direction::Right,
+            angle if (135.0..=225.0).contains(&angle) => Direction::Down,
+            angle if (225.0..=315.0).contains(&angle) => Direction::Left,
+            _ => Direction::Up,
+        }
+    }
 }
