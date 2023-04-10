@@ -44,7 +44,7 @@ pub fn register_burst_actions(
     mouse_button_input: Res<Input<MouseButton>>,
     mut burst_actions: EventWriter<BurstActions>,
 ) {
-    if mouse_button_input.just_pressed(MouseButton::Left) {
+    if mouse_button_input.just_pressed(MouseButton::Left) || keyboard_input.just_pressed(KeyCode::Space) {
         burst_actions.send(BurstActions::Punch);
     }
 

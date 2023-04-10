@@ -192,7 +192,8 @@ pub fn setup_ui(mut commands: Commands, font_assets: Res<FontAssets>) {
                         });
                 });
 
-                parent.spawn(NodeBundle {
+            parent
+                .spawn(NodeBundle {
                     style: Style {
                         margin: UiRect::top(Val::Px(20.0)),
                         flex_direction: FlexDirection::Column,
@@ -213,9 +214,9 @@ pub fn update_health_ui(
 
     let mut health_ui = health_ui_query.single_mut();
     health_ui.sections[0].value = format!(
-        "{}/{}",
-        player_health.get_health().to_string(),
-        player_health.get_max_health().to_string()
+        "{:.0}/{}",
+        player_health.get_health(),
+        player_health.get_max_health()
     );
 }
 

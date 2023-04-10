@@ -1,44 +1,30 @@
-use crate::cleanup::cleanup;
-use crate::loading::FontAssets;
-use crate::{GameState, WorldState};
 use bevy::prelude::*;
+use bevy_console::PrintConsoleLine;
 
-pub struct MenuPlugin;
+use crate::{cleanup::cleanup, loading::FontAssets, GameState, WorldState};
 
-/// This plugin is responsible for the game menu (containing only one button...)
-/// The menu is only drawn during the State `GameState::Menu` and is removed when that state is exited
-impl Plugin for MenuPlugin {
+pub struct GameOverPlugin;
+
+impl Plugin for GameOverPlugin {
     fn build(&self, app: &mut App) {
-        app.init_resource::<ButtonColors>()
-            .add_system(setup_menu.in_schedule(OnEnter(GameState::Menu)))
-            .add_system(click_play_button.in_set(OnUpdate(GameState::Menu)))
-            .add_system(cleanup::<MainMenuUI>.in_schedule(OnExit(GameState::Menu)));
-    }
-}
-
-#[derive(Resource)]
-struct ButtonColors {
-    normal: Color,
-    hovered: Color,
-}
-
-impl Default for ButtonColors {
-    fn default() -> Self {
-        ButtonColors {
-            normal: Color::rgb(0.15, 0.15, 0.15),
-            hovered: Color::rgb(0.25, 0.25, 0.25),
-        }
+        app.add_system(setup_go_ui.in_schedule(OnEnter(GameState::GameOver)))
+            .add_system(click_main_menu_button.in_set(OnUpdate(GameState::GameOver)))
+            .add_system(cleanup::<GameOverUI>.in_schedule(OnExit(GameState::GameOver)));
     }
 }
 
 #[derive(Component)]
-pub struct MainMenuUI;
+pub struct GameOverUI;
 
-fn setup_menu(
+#[derive(Component)]
+pub struct MainMenuButton;
+
+pub fn setup_go_ui(
     mut commands: Commands,
+    mut console_line: EventWriter<PrintConsoleLine>,
     font_assets: Res<FontAssets>,
-    button_colors: Res<ButtonColors>,
 ) {
+    console_line.send(PrintConsoleLine::new("player died".into()));
     commands
         .spawn(NodeBundle {
             style: Style {
@@ -49,54 +35,61 @@ fn setup_menu(
             background_color: Color::NONE.into(),
             ..Default::default()
         })
-        .insert(Name::new("UI"))
-        .insert(MainMenuUI)
+        .insert(Name::new("GameOverUI"))
+        .insert(GameOverUI)
         .with_children(|parent| {
             parent
                 .spawn(ButtonBundle {
                     style: Style {
-                        size: Size::new(Val::Px(120.0), Val::Px(50.0)),
+                        size: Size::new(Val::Px(200.0), Val::Px(50.0)),
                         margin: UiRect::all(Val::Auto),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
                         ..Default::default()
                     },
-                    background_color: button_colors.normal.into(),
+                    background_color: Color::BLACK.into(),
                     ..Default::default()
                 })
+                .insert(Name::new("Main Menu Button"))
+                .insert(MainMenuButton)
                 .with_children(|parent| {
                     parent.spawn(TextBundle::from_section(
-                        "Play",
+                        "Main Menu",
                         TextStyle {
-                            font: font_assets.fira_sans.clone(),
+                            font: font_assets.space_grotesk.clone(),
                             font_size: 40.0,
-                            color: Color::rgb(0.9, 0.9, 0.9),
+                            color: Color::WHITE.into(),
                         },
                     ));
                 });
         });
 }
 
-fn click_play_button(
-    button_colors: Res<ButtonColors>,
+fn click_main_menu_button(
     mut game_state: ResMut<NextState<GameState>>,
     mut world_state: ResMut<NextState<WorldState>>,
     mut interaction_query: Query<
         (&Interaction, &mut BackgroundColor),
-        (Changed<Interaction>, With<Button>),
+        (Changed<Interaction>, With<MainMenuButton>),
     >,
 ) {
     for (interaction, mut color) in &mut interaction_query {
         match *interaction {
             Interaction::Clicked => {
-                game_state.set(GameState::Playing);
-                world_state.set(WorldState::Yes);
+                game_state.set(GameState::Menu);
+                world_state.set(WorldState::No);
             }
             Interaction::Hovered => {
-                *color = button_colors.hovered.into();
+                *color = Color::Rgba {
+                    red: 0.8,
+                    green: 0.8,
+                    blue: 0.8,
+                    alpha: 0.8,
+                }
+                .into();
             }
             Interaction::None => {
-                *color = button_colors.normal.into();
+                *color = Color::BLACK.into();
             }
         }
     }

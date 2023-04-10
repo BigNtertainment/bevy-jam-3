@@ -4,16 +4,16 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::{ActiveCollisionTypes, Collider, RigidBody, Sensor};
 use rand::seq::IteratorRandom;
 
-use crate::{cleanup::cleanup, loading::TextureAssets, GameState};
+use crate::{cleanup::cleanup, loading::TextureAssets, GameState, WorldState};
 
 pub struct PillPlugin;
 
 impl Plugin for PillPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Pill>()
-            .add_system(pill_setup.in_schedule(OnEnter(GameState::Playing)))
+            .add_system(pill_setup.in_schedule(OnEnter(WorldState::Yes)))
             .add_system(update_pill_texture.in_set(OnUpdate(GameState::Playing)))
-            .add_system(cleanup::<Pill>.in_schedule(OnExit(GameState::Playing)));
+            .add_system(cleanup::<Pill>.in_schedule(OnExit(WorldState::Yes)));
     }
 }
 
@@ -132,7 +132,7 @@ impl Default for PillBundle {
             sprite_bundle: SpriteBundle::default(),
             name: Name::new("Pill"),
             rigidbody: RigidBody::KinematicPositionBased,
-            collider: Collider::ball(16.),
+            collider: Collider::ball(64.),
             sensor: Sensor,
             active_collision_types: ActiveCollisionTypes::all(),
         }
@@ -143,7 +143,8 @@ fn pill_setup(mut commands: Commands) {
     commands.spawn(PillBundle {
         pill: Pill::new(PillEffect::positive()[0]),
         sprite_bundle: SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(200., 0., 1.)),
+            transform: Transform::from_translation(Vec3::new(200., 0., 1.))
+                .with_scale(Vec2::splat(0.25).extend(1.)),
             ..Default::default()
         },
         ..default()
@@ -152,7 +153,8 @@ fn pill_setup(mut commands: Commands) {
     commands.spawn(PillBundle {
         pill: Pill::new(PillEffect::positive()[1]),
         sprite_bundle: SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(-150., 125., 1.)),
+            transform: Transform::from_translation(Vec3::new(-150., 125., 1.))
+                .with_scale(Vec2::splat(0.25).extend(1.)),
             ..Default::default()
         },
         ..default()
@@ -161,7 +163,8 @@ fn pill_setup(mut commands: Commands) {
     commands.spawn(PillBundle {
         pill: Pill::new(PillEffect::positive()[2]),
         sprite_bundle: SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(-140., -20., 1.)),
+            transform: Transform::from_translation(Vec3::new(-140., -20., 1.))
+                .with_scale(Vec2::splat(0.25).extend(1.)),
             ..Default::default()
         },
         ..default()
@@ -170,7 +173,8 @@ fn pill_setup(mut commands: Commands) {
     commands.spawn(PillBundle {
         pill: Pill::new(PillEffect::positive()[3]),
         sprite_bundle: SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(140., -45., 1.)),
+            transform: Transform::from_translation(Vec3::new(140., -45., 1.))
+                .with_scale(Vec2::splat(0.25).extend(1.)),
             ..Default::default()
         },
         ..default()
