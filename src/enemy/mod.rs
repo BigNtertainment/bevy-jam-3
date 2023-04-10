@@ -136,7 +136,7 @@ impl LdtkEntity for EnemyBundle {
                 },
                 "Path" => match &field.value {
                     FieldValue::Points(value) => {
-                        path = value
+                        let path_points = value
                             .into_iter()
                             .map(|point| {
                                 let point = point.expect("Empty point in an enemy path!");
@@ -149,6 +149,10 @@ impl LdtkEntity for EnemyBundle {
                                 )
                             })
                             .collect::<Vec<_>>();
+
+                        for point in path_points {
+                            path.push(point);
+                        }
                     }
                     other => panic!("Unknown movement type: {:?}", other),
                 },
