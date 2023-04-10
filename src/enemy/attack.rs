@@ -1,7 +1,14 @@
 use bevy::prelude::*;
 use bevy_spritesheet_animation::animation_manager::{transition_animations, AnimationManager};
 
-use crate::{player::Player, unit::Health, GameState};
+use crate::{
+    player::{
+        effect::{Invincibility, Vulnerability},
+        Player,
+    },
+    unit::Health,
+    GameState,
+};
 
 use super::{sight::see_player, EnemyState};
 
@@ -35,11 +42,20 @@ fn attack_player(
         &mut AnimationManager,
         &Transform,
     )>,
-    mut player_query: Query<(&Transform, &mut Health), With<Player>>,
+    mut player_query: Query<
+        (
+            &Transform,
+            &mut Health,
+            Option<&Invincibility>,
+            Option<&Vulnerability>,
+        ),
+        With<Player>,
+    >,
     time: Res<Time>,
     mut state: ResMut<NextState<GameState>>,
 ) {
-    let (player_transform, mut player_health) = player_query.single_mut();
+    let (player_transform, mut player_health, player_invincibility, player_vulnerability) =
+        player_query.single_mut();
 
     for (mut enemy_state, mut enemy_timer, mut animation_manager, enemy_transform) in
         enemy_query.iter_mut()
@@ -62,7 +78,20 @@ fn attack_player(
             enemy_timer.tick(time.delta());
 
             if enemy_timer.just_finished() {
-                if *player_health.take_damage(rand::random::<f32>() * 5.0 + 20.0) {
+                if *player_health.take_damage(
+                    (rand::random::<f32>() * 5.0
+                        + 20.0
+                            * if let Some(vulnerability) = player_vulnerability {
+                                vulnerability.amount
+                            } else {
+                                1.0
+                            })
+                        * if player_invincibility.is_some() {
+                            0.0
+                        } else {
+                            1.0
+                        },
+                ) {
                     state.set(GameState::GameOver);
 
                     *enemy_state = EnemyState::Idle;

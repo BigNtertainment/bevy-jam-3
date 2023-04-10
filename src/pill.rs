@@ -26,7 +26,7 @@ pub enum PillEffect {
     Invincibility { duration: Duration },
     Sneeze,
     Dizziness { duration: Duration },
-    Blindness { duration: Duration },
+    Vulnerability { amount: f32, duration: Duration },
 }
 
 impl PillEffect {
@@ -58,7 +58,8 @@ impl PillEffect {
             Self::Dizziness {
                 duration: Duration::from_secs(5),
             },
-            Self::Blindness {
+            Self::Vulnerability {
+                amount: 2.0,
                 duration: Duration::from_secs(5),
             },
         ]
@@ -170,7 +171,7 @@ fn pill_setup(mut commands: Commands) {
     });
 
     commands.spawn(PillBundle {
-        pill: Pill::new(PillEffect::positive()[3]),
+        pill: Pill::new(PillEffect::positive()[4]),
         sprite_bundle: SpriteBundle {
             transform: Transform::from_translation(Vec3::new(140., -45., 1.))
                 .with_scale(Vec2::splat(0.25).extend(1.)),
