@@ -26,7 +26,7 @@ pub enum PillEffect {
     Invincibility { duration: Duration },
     Sneeze,
     Dizziness { duration: Duration },
-    Blindness { duration: Duration },
+    Vulnerability { amount: f32, duration: Duration },
 }
 
 impl PillEffect {
@@ -58,7 +58,8 @@ impl PillEffect {
             Self::Dizziness {
                 duration: Duration::from_secs(5),
             },
-            Self::Blindness {
+            Self::Vulnerability {
+                amount: 2.0,
                 duration: Duration::from_secs(5),
             },
         ]

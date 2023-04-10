@@ -19,6 +19,7 @@ impl Plugin for EffectPlugin {
             .add_systems(effect_systems::<Invisibility>())
             .add_systems(effect_systems::<Invincibility>())
             .add_systems(effect_systems::<Dizziness>())
+            .add_systems(effect_systems::<Vulnerability>())
             .add_system(invisibility_vfx.in_set(OnUpdate(GameState::Playing)))
             .add_system(reset_invisibility_vfx.in_set(OnUpdate(GameState::Playing)));
     }
@@ -113,6 +114,23 @@ impl EffectVisuals for Dizziness {
 
     fn get_name(&self) -> String {
         "Dizziness".to_string()
+    }
+}
+
+#[derive(Reflect, Component, Clone, Default, Debug, Temporary)]
+#[reflect(Component)]
+pub struct Vulnerability {
+    pub amount: f32,
+    pub timer: Timer,
+}
+
+impl EffectVisuals for Vulnerability {
+    fn get_color(&self) -> Color {
+        Color::hex("fc620a").unwrap()
+    }
+
+    fn get_name(&self) -> String {
+        "Vulnerability".to_string()
     }
 }
 
