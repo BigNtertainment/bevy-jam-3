@@ -151,7 +151,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
         collider: Collider::cuboid(21., 53.),
         name: Name::new("Player"),
         movement: Movement {
-            speed: 500.0, // TODO: Change it to 200.0 for release
+            speed: 200.0,
             running_speed: 250.0,
         },
         punch_timer: PunchTimer(Timer::from_seconds(2.5, TimerMode::Once)),
