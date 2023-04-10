@@ -516,6 +516,40 @@
 								{ "__identifier": "GuardedAreaCorner1", "__value": null, "__type": "Point", "__tile": null, "defUid": 39, "realEditorValues": [] },
 								{ "__identifier": "GuardedAreaCorner2", "__value": null, "__type": "Point", "__tile": null, "defUid": 40, "realEditorValues": [] }
 							]
+						},
+						{
+							"__identifier": "Pill",
+							"__grid": [5,36],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#DF11E5",
+							"iid": "19022d70-c640-11ed-a54c-7524a283c079",
+							"width": 16,
+							"height": 16,
+							"defUid": 41,
+							"px": [80,576],
+							"fieldInstances": [{ "__identifier": "Pill_Type", "__value": "Heal", "__type": "LocalEnum.Pill_Type", "__tile": null, "defUid": 43, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["Heal"]
+							}] }]
+						},
+						{
+							"__identifier": "Pill",
+							"__grid": [20,36],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#DF11E5",
+							"iid": "0a31d730-c640-11ed-a54c-9d8b4707cb57",
+							"width": 16,
+							"height": 16,
+							"defUid": 41,
+							"px": [320,576],
+							"fieldInstances": [{ "__identifier": "Pill_Type", "__value": "ToxicFart", "__type": "LocalEnum.Pill_Type", "__tile": null, "defUid": 43, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["ToxicFart"]
+							}] }]
 						}
 					]
 				},

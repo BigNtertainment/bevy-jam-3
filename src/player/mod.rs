@@ -159,7 +159,7 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
     });
 }
 
-fn player_movement(
+pub fn player_movement(
     mut player_query: Query<
         (
             Entity,

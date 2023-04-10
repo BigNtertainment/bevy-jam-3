@@ -1,5 +1,6 @@
 use crate::enemy::{ENEMY_COLLIDER_HEIGHT, ENEMY_COLLIDER_WIDTH};
 use crate::GameState;
+use crate::pill::PillBundle;
 use crate::{enemy::EnemyBundle, loading::LevelAssets};
 use ::navmesh::NavMesh;
 use bevy::prelude::*;
@@ -30,6 +31,7 @@ impl Plugin for LevelPlugin {
             .register_ldtk_int_cell::<WallBundle>(1)
             .register_ldtk_int_cell::<NavMeshCellBundle>(2)
             .register_ldtk_entity::<EnemyBundle>("Enemy")
+            .register_ldtk_entity::<PillBundle>("Pill")
             .add_system(ldtk_setup.in_schedule(OnEnter(GameState::Playing)))
             .add_system(generate_nav_mesh.in_set(OnUpdate(GameState::Playing)));
 

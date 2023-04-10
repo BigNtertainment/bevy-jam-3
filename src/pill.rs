@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_ecs_ldtk::prelude::{FieldValue, LdtkEntity};
 use bevy_rapier2d::prelude::{ActiveCollisionTypes, Collider, RigidBody, Sensor};
 use rand::seq::IteratorRandom;
 
@@ -11,8 +12,7 @@ pub struct PillPlugin;
 impl Plugin for PillPlugin {
     fn build(&self, app: &mut App) {
         app.register_type::<Pill>()
-            .add_system(pill_setup.in_schedule(OnEnter(WorldState::Yes)))
-            .add_system(update_pill_texture.in_set(OnUpdate(GameState::Playing)))
+            .add_systems((update_pill_texture, adjust_pill_scale).in_set(OnUpdate(GameState::Playing)))
             .add_system(cleanup::<Pill>.in_schedule(OnExit(WorldState::Yes)));
     }
 }
@@ -32,7 +32,7 @@ pub enum PillEffect {
 impl PillEffect {
     pub fn positive() -> Vec<Self> {
         vec![
-            Self::Heal { amount: 10. },
+            Self::Heal { amount: 15. },
             Self::Speed {
                 amount: 1.5,
                 duration: Duration::from_secs(5),
@@ -114,7 +114,7 @@ impl Default for Pill {
 }
 
 #[derive(Bundle)]
-struct PillBundle {
+pub struct PillBundle {
     pill: Pill,
     #[bundle]
     sprite_bundle: SpriteBundle,
@@ -139,46 +139,50 @@ impl Default for PillBundle {
     }
 }
 
-fn pill_setup(mut commands: Commands) {
-    commands.spawn(PillBundle {
-        pill: Pill::new(PillEffect::positive()[0]),
-        sprite_bundle: SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(200., 0., 1.))
-                .with_scale(Vec2::splat(0.25).extend(1.)),
-            ..Default::default()
-        },
-        ..default()
-    });
+impl LdtkEntity for PillBundle {
+    fn bundle_entity(
+        entity_instance: &bevy_ecs_ldtk::EntityInstance,
+        _layer_instance: &bevy_ecs_ldtk::prelude::LayerInstance,
+        _tileset: Option<&Handle<Image>>,
+        _tileset_definition: Option<&bevy_ecs_ldtk::prelude::TilesetDefinition>,
+        _asset_server: &AssetServer,
+        _texture_atlases: &mut Assets<TextureAtlas>,
+    ) -> Self {
+        let mut pill_effect_str = "".to_string();
 
-    commands.spawn(PillBundle {
-        pill: Pill::new(PillEffect::positive()[1]),
-        sprite_bundle: SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(-150., 125., 1.))
-                .with_scale(Vec2::splat(0.25).extend(1.)),
-            ..Default::default()
-        },
-        ..default()
-    });
+        for field in &entity_instance.field_instances {
+            match field.identifier.as_str() {
+                "Pill_Type" => {
+                    if let FieldValue::Enum(enum_value) = &field.value {
+                        pill_effect_str = enum_value.clone().expect("Empty pill type");
+                    } else {
+                        panic!("Pill_Type field is not an enum value");
+                    }
+                }
+                other => panic!("Unknown pill field: {}", other),
+            }
+        }
 
-    commands.spawn(PillBundle {
-        pill: Pill::new(PillEffect::positive()[2]),
-        sprite_bundle: SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(-140., -20., 1.))
-                .with_scale(Vec2::splat(0.25).extend(1.)),
-            ..Default::default()
-        },
-        ..default()
-    });
+        let pill_effect = match pill_effect_str.as_str() {
+            "Heal" => PillEffect::positive()[0],
+            "Speed" => PillEffect::positive()[1],
+            "ToxicFart" => PillEffect::positive()[2],
+            "Invisibility" => PillEffect::positive()[3],
+            "Invincibility" => PillEffect::positive()[4],
+            other => panic!("Unknown pill effect: {}", other),
+        };
 
-    commands.spawn(PillBundle {
-        pill: Pill::new(PillEffect::positive()[4]),
-        sprite_bundle: SpriteBundle {
-            transform: Transform::from_translation(Vec3::new(140., -45., 1.))
-                .with_scale(Vec2::splat(0.25).extend(1.)),
-            ..Default::default()
-        },
-        ..default()
-    });
+        Self {
+            pill: Pill::new(pill_effect),
+            ..default()
+        }
+    }
+}
+
+fn adjust_pill_scale(mut query: Query<&mut Transform, Added<Pill>>) {
+    for mut transform in query.iter_mut() {
+        transform.scale = Vec2::splat(0.25).extend(1.);
+    }
 }
 
 fn update_pill_texture(
