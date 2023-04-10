@@ -242,11 +242,29 @@ fn player_movement(
             }
         };
 
-        let target = Vec3::new(
+        let target = Vec2::new(
             horizontal_target.x,
             vertical_target.y,
-            transform.translation.z,
         );
+
+        let movement_vector = target - transform.translation.truncate();
+
+        let movement_vector = movement_vector * if let Some((_entity, hit)) = rapier_context.cast_shape(
+            transform.translation.truncate(),
+            0.,
+            movement_vector,
+            collider,
+            1.,
+            QueryFilter::default()
+                .exclude_sensors()
+                .exclude_collider(entity),
+        ) {
+            hit.toi - 1.
+        } else {
+            0.9
+        };
+
+        let target = transform.translation + movement_vector.extend(0.0);
 
         animation_manager
             .set_state("walk".to_string(), target != transform.translation)
