@@ -1,10 +1,11 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::{QueryFilter, RapierContext};
 
 use crate::{
     player::Player,
     unit::{Direction, Euler},
-    GameState,
+    GameState, loading::AudioAssets,
 };
 
 use super::{super::player::effect::Invisibility, movement::enemy_movement, EnemyState};
@@ -25,6 +26,8 @@ pub fn see_player(
     mut enemy_query: Query<(&mut EnemyState, &Transform, &Direction)>,
     player_query: Query<(Entity, &Transform, Option<&Invisibility>), With<Player>>,
     rapier_context: Res<RapierContext>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
 ) {
     let (player_entity, player_transform, player_invisibility) = player_query.single();
 
@@ -43,7 +46,7 @@ pub fn see_player(
 
         let angle = Euler::from_radians(to_player_vector.angle_between(Vec2::new(0., 1.)));
 
-        let enemy_sight = 35000.0;
+        let enemy_sight = 500.0;
 
         let see_player = distance < 15.
             || (if matches!(*enemy_state.as_ref(), EnemyState::Idle) {
@@ -63,6 +66,10 @@ pub fn see_player(
             } && player_invisibility.is_none());
 
         if see_player {
+            if matches!(*enemy_state, EnemyState::Idle) {
+                audio.play(audio_assets.notice.clone());
+            }
+
             *enemy_state = EnemyState::Alert {
                 target: player_transform.translation.truncate(),
             };

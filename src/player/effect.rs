@@ -1,11 +1,12 @@
 use std::marker::PhantomData;
 
 use bevy::{ecs::schedule::SystemConfigs, prelude::*};
+use bevy_kira_audio::{Audio, AudioControl};
 use drug_test_proc_macros::Temporary;
 
 use crate::{
     enemy::EnemyState,
-    loading::FontAssets,
+    loading::{AudioAssets, FontAssets},
     pill::{Pill, PillEffect},
     unit::Health,
     GameState,
@@ -37,6 +38,8 @@ pub fn execute_pill_effects(
     mut commands: Commands,
     mut player_query: Query<(Entity, &mut Health, &Transform), With<Player>>,
     mut enemy_query: Query<(&mut EnemyState, &Transform)>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
 ) {
     let (player_entity, mut player_health, player_transform) = player_query.single_mut();
 
@@ -65,6 +68,8 @@ pub fn execute_pill_effects(
                             };
                         }
                     }
+
+                    audio.play(audio_assets.fart.clone());
                 }
                 PillEffect::Invisibility { duration } => {
                     commands.entity(player_entity).insert(Invisibility {
@@ -100,6 +105,8 @@ pub fn execute_pill_effects(
                             };
                         }
                     }
+
+                    audio.play(audio_assets.sneeze.clone());
                 }
             }
         }

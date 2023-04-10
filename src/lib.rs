@@ -17,6 +17,7 @@ use bevy::app::App;
 use bevy::diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin};
 use bevy::prelude::*;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_kira_audio::AudioPlugin;
 use bevy_prototype_debug_lines::DebugLinesPlugin;
 use bevy_rapier2d::{
     prelude::{NoUserData, RapierPhysicsPlugin},
@@ -67,6 +68,7 @@ impl Plugin for GamePlugin {
             .add_plugin(LoadingPlugin)
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
             .add_plugin(SpritesheetAnimationPlugin)
+            .add_plugin(AudioPlugin)
             .add_plugin(MenuPlugin)
             .add_plugin(ActionsPlugin)
             .add_plugin(PlayerPlugin)

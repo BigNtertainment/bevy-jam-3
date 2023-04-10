@@ -2,6 +2,7 @@ use crate::GameState;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 use bevy_ecs_ldtk::LdtkAsset;
+use bevy_kira_audio::AudioSource;
 
 pub struct LoadingPlugin;
 
@@ -32,7 +33,20 @@ pub struct FontAssets {
 }
 
 #[derive(AssetCollection, Resource)]
-pub struct AudioAssets {}
+pub struct AudioAssets {
+    #[asset(path = "audio/death.ogg")]
+    pub death: Handle<AudioSource>,
+    #[asset(path = "audio/fart.ogg")]
+    pub fart: Handle<AudioSource>,
+    #[asset(path = "audio/hit.ogg")]
+    pub punch: Handle<AudioSource>,
+    #[asset(path = "audio/notice.ogg")]
+    pub notice: Handle<AudioSource>,
+    #[asset(path = "audio/shot.ogg")]
+    pub shot: Handle<AudioSource>,
+    #[asset(path = "audio/sneeze.ogg")]
+    pub sneeze: Handle<AudioSource>,
+}
 
 #[derive(AssetCollection, Resource)]
 pub struct TextureAssets {

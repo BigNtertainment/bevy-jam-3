@@ -172,13 +172,6 @@ pub fn enemy_movement(
                         .map(|point| Vec2::new(point.x, point.y))
                         .skip(1)
                         .collect();
-                } else {
-                    println!(
-                        "No path found between points {} and ({}, {})",
-                        enemy_transform.translation.truncate(),
-                        target.x,
-                        target.y
-                    );
                 }
             } else {
                 println!("Closest point to ({}, {}) not found", target.x, target.y);

@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_rapier2d::prelude::{Collider, QueryFilter, RapierContext, RigidBody};
 use bevy_spritesheet_animation::{
     animation::{Animation, AnimationBounds},
@@ -13,7 +14,7 @@ use crate::{
     cleanup::cleanup,
     enemy::EnemyState,
     level::PlayerSpawn,
-    loading::TextureAssets,
+    loading::{TextureAssets, AudioAssets},
     pill::Pill,
     unit::{Direction, Euler, Health, Movement},
     GameState, WorldState,
@@ -304,7 +305,9 @@ fn update_sprite(
 fn spawn_player_body(
     mut commands: Commands,
     player_query: Query<(Entity, &Transform, &Health), With<Player>>,
+    audio: Res<Audio>,
     textures: Res<TextureAssets>,
+    audio_assets: Res<AudioAssets>
 ) {
     for (player_entity, player_transform, player_health) in player_query.iter() {
         if player_health.get_health() <= 0. {
@@ -316,6 +319,8 @@ fn spawn_player_body(
                     ..Default::default()
                 })
                 .insert(PlayerBody);
+
+            audio.play(audio_assets.death.clone()).with_volume(0.5);
         }
     }
 }
@@ -333,6 +338,8 @@ fn punch_enemies(
     mut enemy_query: Query<(&mut EnemyState, &Transform)>,
     mut burst_actions: EventReader<BurstActions>,
     time: Res<Time>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
 ) {
     let (mut punch_timer, mut animation_manager, player_transform, player_direction) =
         player_query.single_mut();
@@ -367,6 +374,8 @@ fn punch_enemies(
         animation_manager
             .set_state("punch".to_string(), true)
             .unwrap();
+
+        audio.play(audio_assets.punch.clone()).with_volume(0.5);
 
         punch_timer.reset();
     }

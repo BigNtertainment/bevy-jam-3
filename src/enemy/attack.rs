@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_kira_audio::{Audio, AudioControl};
 use bevy_spritesheet_animation::animation_manager::{transition_animations, AnimationManager};
 
 use crate::{
@@ -7,7 +8,7 @@ use crate::{
         Player,
     },
     unit::Health,
-    GameState,
+    GameState, loading::AudioAssets,
 };
 
 use super::{sight::see_player, EnemyState};
@@ -52,6 +53,8 @@ fn attack_player(
         With<Player>,
     >,
     time: Res<Time>,
+    audio: Res<Audio>,
+    audio_assets: Res<AudioAssets>,
     mut state: ResMut<NextState<GameState>>,
 ) {
     let (player_transform, mut player_health, player_invincibility, player_vulnerability) =
@@ -100,6 +103,8 @@ fn attack_player(
                 animation_manager
                     .set_state("shoot".to_string(), true)
                     .unwrap();
+
+                audio.play(audio_assets.shot.clone());
             }
         }
     }
