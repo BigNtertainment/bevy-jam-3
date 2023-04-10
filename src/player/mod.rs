@@ -167,7 +167,10 @@ fn move_to_spawn(
 ) {
     let mut player_transform = player_query.single_mut();
     if let Ok(spawn_transform) = player_spawn_query.get_single() {
-        player_transform.translation = spawn_transform.translation;
+        player_transform.translation = spawn_transform
+            .translation
+            .truncate()
+            .extend(player_transform.translation.z);
     }
 }
 

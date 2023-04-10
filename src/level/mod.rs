@@ -1,7 +1,8 @@
+use crate::cleanup::cleanup;
 use crate::enemy::{ENEMY_COLLIDER_HEIGHT, ENEMY_COLLIDER_WIDTH};
-use crate::GameState;
 use crate::pill::PillBundle;
 use crate::{enemy::EnemyBundle, loading::LevelAssets};
+use crate::{GameState, WorldState};
 use ::navmesh::NavMesh;
 use bevy::prelude::*;
 use bevy::utils::HashMap;
@@ -34,7 +35,11 @@ impl Plugin for LevelPlugin {
             .register_ldtk_entity::<PillBundle>("Pill")
             .register_ldtk_entity::<PlayerSpawnBundle>("PlayerSpawn")
             .add_system(ldtk_setup.in_schedule(OnEnter(GameState::Playing)))
-            .add_system(generate_nav_mesh.in_set(OnUpdate(GameState::Playing)));
+            .add_system(generate_nav_mesh.in_set(OnUpdate(GameState::Playing)))
+            .add_systems(
+                (cleanup::<Handle<LdtkAsset>>, cleanup::<WorldNavMesh>)
+                    .in_schedule(OnExit(WorldState::Yes)),
+            );
 
         #[cfg(debug_assertions)]
         {

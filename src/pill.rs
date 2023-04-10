@@ -39,10 +39,10 @@ impl PillEffect {
             },
             Self::ToxicFart,
             Self::Invisibility {
-                duration: Duration::from_secs(3),
+                duration: Duration::from_secs(5),
             },
             Self::Invincibility {
-                duration: Duration::from_secs(3),
+                duration: Duration::from_secs(5),
             },
         ]
     }
