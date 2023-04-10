@@ -32,6 +32,7 @@ impl Plugin for LevelPlugin {
             .register_ldtk_int_cell::<NavMeshCellBundle>(2)
             .register_ldtk_entity::<EnemyBundle>("Enemy")
             .register_ldtk_entity::<PillBundle>("Pill")
+            .register_ldtk_entity::<PlayerSpawnBundle>("PlayerSpawn")
             .add_system(ldtk_setup.in_schedule(OnEnter(GameState::Playing)))
             .add_system(generate_nav_mesh.in_set(OnUpdate(GameState::Playing)));
 
@@ -67,6 +68,17 @@ pub struct NavMeshCell;
 #[derive(Clone, Debug, Default, Bundle, LdtkIntCell)]
 pub struct NavMeshCellBundle {
     nav_mesh_cell: NavMeshCell,
+    transform: Transform,
+    global_transform: GlobalTransform,
+}
+
+#[derive(Component, Reflect, Default, Debug, Clone, PartialEq, Eq)]
+#[reflect(Component)]
+pub struct PlayerSpawn;
+
+#[derive(Clone, Debug, Default, Bundle, LdtkEntity)]
+pub struct PlayerSpawnBundle {
+    player_spawn: PlayerSpawn,
     transform: Transform,
     global_transform: GlobalTransform,
 }

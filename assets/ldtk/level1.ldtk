@@ -11,7 +11,7 @@
 	"iid": "697c2ab0-c640-11ed-9971-3fe89836d27d",
 	"jsonVersion": "1.2.5",
 	"appBuildId": 464870,
-	"nextUid": 66,
+	"nextUid": 67,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -374,6 +374,35 @@
 					"tilesetUid": null
 				}
 			]
+		},
+		{
+			"identifier": "PlayerSpawn",
+			"uid": 66,
+			"tags": [],
+			"exportToToc": false,
+			"doc": null,
+			"width": 16,
+			"height": 16,
+			"resizableX": false,
+			"resizableY": false,
+			"keepAspectRatio": false,
+			"tileOpacity": 1,
+			"fillOpacity": 1,
+			"lineOpacity": 1,
+			"hollow": false,
+			"color": "#0099DB",
+			"renderMode": "Cross",
+			"showName": true,
+			"tilesetId": null,
+			"tileRenderMode": "FitInside",
+			"tileRect": null,
+			"nineSliceBorders": [],
+			"maxCount": 0,
+			"limitScope": "PerLevel",
+			"limitBehavior": "MoveLastOne",
+			"pivotX": 0,
+			"pivotY": 0,
+			"fieldDefs": []
 		}
 	], "tilesets": [
 		{
@@ -550,6 +579,20 @@
 								"id": "V_String",
 								"params": ["ToxicFart"]
 							}] }]
+						},
+						{
+							"__identifier": "PlayerSpawn",
+							"__grid": [28,36],
+							"__pivot": [0,0],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#0099DB",
+							"iid": "a401e8a0-c640-11ed-a54c-2b93e57b29a3",
+							"width": 16,
+							"height": 16,
+							"defUid": 66,
+							"px": [448,576],
+							"fieldInstances": []
 						}
 					]
 				},

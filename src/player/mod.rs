@@ -12,6 +12,7 @@ use crate::{
     actions::{Actions, BurstActions},
     cleanup::cleanup,
     enemy::EnemyState,
+    level::PlayerSpawn,
     loading::TextureAssets,
     pill::Pill,
     unit::{Direction, Euler, Health, Movement},
@@ -41,6 +42,7 @@ impl Plugin for PlayerPlugin {
             .add_systems((setup_player, setup_ui).in_schedule(OnEnter(WorldState::Yes)))
             .add_systems(
                 (
+                    move_to_spawn,
                     player_movement,
                     punch_enemies.after(transition_animations),
                     pick_up_pills,
@@ -159,6 +161,16 @@ fn setup_player(mut commands: Commands, textures: Res<TextureAssets>) {
     });
 }
 
+fn move_to_spawn(
+    mut player_query: Query<&mut Transform, With<Player>>,
+    player_spawn_query: Query<&Transform, (Added<PlayerSpawn>, Without<Player>)>,
+) {
+    let mut player_transform = player_query.single_mut();
+    if let Ok(spawn_transform) = player_spawn_query.get_single() {
+        player_transform.translation = spawn_transform.translation;
+    }
+}
+
 pub fn player_movement(
     mut player_query: Query<
         (
@@ -242,27 +254,25 @@ pub fn player_movement(
             }
         };
 
-        let target = Vec2::new(
-            horizontal_target.x,
-            vertical_target.y,
-        );
+        let target = Vec2::new(horizontal_target.x, vertical_target.y);
 
         let movement_vector = target - transform.translation.truncate();
 
-        let movement_vector = movement_vector * if let Some((_entity, hit)) = rapier_context.cast_shape(
-            transform.translation.truncate(),
-            0.,
-            movement_vector,
-            collider,
-            1.,
-            QueryFilter::default()
-                .exclude_sensors()
-                .exclude_collider(entity),
-        ) {
-            hit.toi - 1.
-        } else {
-            0.9
-        };
+        let movement_vector = movement_vector
+            * if let Some((_entity, hit)) = rapier_context.cast_shape(
+                transform.translation.truncate(),
+                0.,
+                movement_vector,
+                collider,
+                1.,
+                QueryFilter::default()
+                    .exclude_sensors()
+                    .exclude_collider(entity),
+            ) {
+                hit.toi - 1.
+            } else {
+                0.9
+            };
 
         let target = transform.translation + movement_vector.extend(0.0);
 
