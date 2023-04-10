@@ -21,7 +21,7 @@ impl Plugin for EffectPlugin {
             .register_type::<Invisibility>()
             .register_type::<Invincibility>()
             .register_type::<Dizziness>()
-            .register_type::<Blindness>()
+            .register_type::<Vulnerability>()
             .add_systems(effect_systems::<MovementBoost>())
             .add_systems(effect_systems::<Invisibility>())
             .add_systems(effect_systems::<Invincibility>())
@@ -76,8 +76,9 @@ pub fn execute_pill_effects(
                         timer: Timer::new(duration, TimerMode::Once),
                     });
                 }
-                PillEffect::Blindness { duration } => {
-                    commands.entity(player_entity).insert(Blindness {
+                PillEffect::Vulnerability { amount, duration } => {
+                    commands.entity(player_entity).insert(Vulnerability {
+                        amount,
                         timer: Timer::new(duration, TimerMode::Once),
                     });
                 }
