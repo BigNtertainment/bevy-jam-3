@@ -87,7 +87,7 @@
 			"parallaxScaling": true,
 			"requiredTags": [],
 			"excludedTags": [],
-			"intGridValues": [{ "value": 1, "identifier": "wall", "color": "#000000" }],
+			"intGridValues": [ { "value": 1, "identifier": "wall", "color": "#000000" }, { "value": 2, "identifier": "navmesh", "color": "#BE4A2F" } ],
 			"autoRuleGroups": [
 				{ "uid": 7, "name": "wall", "active": true, "isOptional": false, "rules": [
 					{
@@ -528,8 +528,8 @@
 					"visible": true,
 					"optionalRules": [],
 					"intGridCsv": [
-						1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,1,
-						1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
+						1,1,1,1,1,1,1,1,1,2,2,2,2,2,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,1,
+						1,0,0,0,1,2,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,
 						0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 					],
 					"autoLayerTiles": [
