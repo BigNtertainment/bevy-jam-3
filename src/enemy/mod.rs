@@ -34,7 +34,10 @@ impl Plugin for EnemyPlugin {
             .add_plugin(EnemySightPlugin)
             .add_plugin(EnemyAttackPlugin)
             .add_system(debug_spawn.in_schedule(OnEnter(GameState::Playing)))
-            .add_systems((update_sprites, update_z_index, handle_stunned_enemies).in_set(OnUpdate(WorldState::Yes)))
+            .add_systems(
+                (update_sprites, update_z_index, handle_stunned_enemies)
+                    .in_set(OnUpdate(WorldState::Yes)),
+            )
             .add_system(cleanup::<EnemyState>.in_schedule(OnExit(WorldState::Yes)));
     }
 }

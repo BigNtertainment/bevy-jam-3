@@ -171,7 +171,7 @@ fn pill_setup(mut commands: Commands) {
     });
 
     commands.spawn(PillBundle {
-        pill: Pill::new(PillEffect::positive()[3]),
+        pill: Pill::new(PillEffect::positive()[4]),
         sprite_bundle: SpriteBundle {
             transform: Transform::from_translation(Vec3::new(140., -45., 1.))
                 .with_scale(Vec2::splat(0.25).extend(1.)),

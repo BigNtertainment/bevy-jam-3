@@ -19,7 +19,7 @@ use crate::{
 };
 
 use self::{
-    effect::{Dizziness, EffectPlugin, Invincibility, Invisibility, MovementBoost, Vulnerability, execute_pill_effects},
+    effect::{execute_pill_effects, Dizziness, EffectPlugin, MovementBoost},
     inventory::Inventory,
     ui::{setup_ui, update_health_ui, update_inventory_ui, HealthUI, InventorySlotUI, PlayerUI},
 };
@@ -242,7 +242,11 @@ fn player_movement(
             }
         };
 
-        let target = Vec3::new(horizontal_target.x, vertical_target.y, transform.translation.z);
+        let target = Vec3::new(
+            horizontal_target.x,
+            vertical_target.y,
+            transform.translation.z,
+        );
 
         animation_manager
             .set_state("walk".to_string(), target != transform.translation)
