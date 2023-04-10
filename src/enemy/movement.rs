@@ -132,24 +132,30 @@ pub fn enemy_movement(
                 }
             }
             EnemyState::Alert { target } => {
-                if let Some(path_target) = enemy_movement_target.path.last() {
-                    if *path_target != target {
-                        Some(target)
+                if let Some(target) =
+                    nav_mesh.closest_point(NavVec3::new(target.x, target.y, 0.), NavQuery::Closest)
+                {
+                    let target = Vec2::new(target.x, target.y);
+
+                    if let Some(path_target) = enemy_movement_target.path.last() {
+                        if *path_target != target {
+                            Some(target)
+                        } else {
+                            None
+                        }
                     } else {
-                        None
+                        Some(target)
                     }
                 } else {
-                    Some(target)
+                    None
                 }
             }
             EnemyState::Stun { timer: _ } => continue,
         };
 
         if let Some(target) = new_target {
-            println!("new target: {}", target);
-
             if let Some(target) =
-                nav_mesh.closest_point(NavVec3::new(target.x, target.y, 0.), NavQuery::Accuracy)
+                nav_mesh.closest_point(NavVec3::new(target.x, target.y, 0.), NavQuery::Closest)
             {
                 if let Some(path) = nav_mesh.find_path(
                     NavVec3::new(
@@ -164,21 +170,18 @@ pub fn enemy_movement(
                     enemy_movement_target.path = path
                         .iter()
                         .map(|point| Vec2::new(point.x, point.y))
+                        .skip(1)
                         .collect();
                 } else {
-                    // println!(
-                    //     "No path found between points {} and ({}, {})",
-                    //     enemy_transform.translation.truncate(),
-                    //     target.x,
-                    //     target.y
-                    // );
+                    println!(
+                        "No path found between points {} and ({}, {})",
+                        enemy_transform.translation.truncate(),
+                        target.x,
+                        target.y
+                    );
                 }
             } else {
-                println!(
-                    "Closest point to ({}, {}) not found",
-                    target.x,
-                    target.y
-                );
+                println!("Closest point to ({}, {}) not found", target.x, target.y);
             }
         }
 

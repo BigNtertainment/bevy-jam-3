@@ -215,66 +215,6 @@ fn adjust_enemy_scale(mut enemy_query: Query<&mut Transform, Added<EnemyState>>)
     }
 }
 
-/// debug_spawn spawns test enemy somwehere on the map.
-// fn debug_spawn(mut commands: Commands, textures: Res<TextureAssets>) {
-//     commands
-//         .spawn(EnemyBundle {
-//             sprite_sheet_bundle: SpriteSheetBundle {
-//                 transform: Transform::from_xyz(-100., 50., 0.)
-//                     .with_scale(Vec2::splat(0.5).extend(1.)),
-//                 texture_atlas: textures.enemy_down.clone(),
-//                 sprite: TextureAtlasSprite::new(0),
-//                 ..default()
-//             },
-//             ..default()
-//         })
-//         .insert(Name::new("Enemy #1"));
-
-//     commands
-//         .spawn(EnemyBundle {
-//             sprite_sheet_bundle: SpriteSheetBundle {
-//                 transform: Transform::from_xyz(200., 250., 0.)
-//                     .with_scale(Vec2::splat(0.5).extend(1.)),
-//                 texture_atlas: textures.enemy_down.clone(),
-//                 sprite: TextureAtlasSprite::new(0),
-//                 ..default()
-//             },
-//             movement_type: EnemyMovementType::AlongPath {
-//                 path: vec![
-//                     Vec2::new(200., 250.),
-//                     Vec2::new(200., -250.),
-//                     Vec2::new(100., -250.),
-//                     Vec2::new(100., 250.),
-//                 ],
-//                 current: 0,
-//             },
-//             ..default()
-//         })
-//         .insert(Name::new("Enemy #2"));
-
-//     commands
-//         .spawn(EnemyBundle {
-//             sprite_sheet_bundle: SpriteSheetBundle {
-//                 transform: Transform::from_xyz(150., 150., 0.)
-//                     .with_scale(Vec2::splat(0.5).extend(1.)),
-//                 texture_atlas: textures.enemy_down.clone(),
-//                 sprite: TextureAtlasSprite::new(0),
-//                 ..default()
-//             },
-//             movement_type: EnemyMovementType::GuardArea {
-//                 area: Rect::new(0., 100., 300., 300.),
-//                 current: Vec2::new(150., 150.),
-//                 wait_timer: Timer::from_seconds(3., TimerMode::Repeating),
-//             },
-//             movement: Movement {
-//                 speed: 50.,
-//                 running_speed: 215.,
-//             },
-//             ..default()
-//         })
-//         .insert(Name::new("Enemy #3"));
-// }
-
 fn update_sprites(
     mut enemy_query: Query<
         (&mut Handle<TextureAtlas>, &Direction),
