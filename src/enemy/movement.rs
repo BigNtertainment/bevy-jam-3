@@ -1,12 +1,11 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance, LdtkAsset};
-use bevy_pathmesh::PathMesh;
 use bevy_spritesheet_animation::animation_manager::AnimationManager;
+use navmesh::{NavPathMode, NavQuery, NavVec3};
 
 use crate::{
+    level::WorldNavMesh,
     player::Player,
     unit::{Direction, Euler, Movement},
-    world::{NavMesh, World},
     GameState,
 };
 
@@ -98,11 +97,15 @@ pub fn enemy_movement(
         &mut Transform,
     )>,
     player_query: Query<&Transform, (With<Player>, Without<EnemyState>)>,
-    nav_mesh_query: Query<&NavMesh, With<World>>,
-    mesh_assets: Res<Assets<PathMesh>>,
+    nav_mesh_query: Query<&WorldNavMesh>,
     time: Res<Time>,
 ) {
-    let nav_mesh = nav_mesh_query.single();
+    let nav_mesh = if let Ok(nav_mesh) = nav_mesh_query.get_single() {
+        nav_mesh
+    } else {
+        return;
+    };
+
     let player_transform = player_query.single();
 
     for (
@@ -143,17 +146,38 @@ pub fn enemy_movement(
         };
 
         if let Some(target) = new_target {
-            if let Some(path) = mesh_assets
-                .get(&nav_mesh.0)
-                .unwrap()
-                .path(enemy_transform.translation.truncate(), target)
+            println!("new target: {}", target);
+
+            if let Some(target) =
+                nav_mesh.closest_point(NavVec3::new(target.x, target.y, 0.), NavQuery::Accuracy)
             {
-                enemy_movement_target.path = path.path;
+                if let Some(path) = nav_mesh.find_path(
+                    NavVec3::new(
+                        enemy_transform.translation.x,
+                        enemy_transform.translation.y,
+                        0.,
+                    ),
+                    target,
+                    NavQuery::Accuracy,
+                    NavPathMode::Accuracy,
+                ) {
+                    enemy_movement_target.path = path
+                        .iter()
+                        .map(|point| Vec2::new(point.x, point.y))
+                        .collect();
+                } else {
+                    // println!(
+                    //     "No path found between points {} and ({}, {})",
+                    //     enemy_transform.translation.truncate(),
+                    //     target.x,
+                    //     target.y
+                    // );
+                }
             } else {
-                eprintln!(
-                    "No path found between points {} and {}",
-                    enemy_transform.translation.truncate(),
-                    target
+                println!(
+                    "Closest point to ({}, {}) not found",
+                    target.x,
+                    target.y
                 );
             }
         }
@@ -240,12 +264,15 @@ fn enemy_guard_area_timer(
 
 fn avoid_overlap(
     mut enemies: Query<(&mut Transform, &EnemyState), With<EnemyState>>,
-    nav_mesh_query: Query<&NavMesh, With<World>>,
-    mesh_assets: Res<Assets<PathMesh>>,
+    nav_mesh_query: Query<&WorldNavMesh>,
     time: Res<Time>,
 ) {
-    let nav_mesh = nav_mesh_query.single();
-    let mesh = mesh_assets.get(&nav_mesh.0).unwrap();
+    let nav_mesh = if let Ok(nav_mesh) = nav_mesh_query.get_single() {
+        nav_mesh
+    } else {
+        return;
+    };
+
     let mut combinations = enemies.iter_combinations_mut();
 
     while let Some([(mut transform1, state1), (mut transform2, state2)]) = combinations.fetch_next()
@@ -270,12 +297,16 @@ fn avoid_overlap(
             let target2 = transform2.translation.truncate()
                 - normalized / distance * 500. * time.delta_seconds();
 
-            if mesh.is_in_mesh(target1) {
-                transform1.translation = target1.extend(transform1.translation.z);
+            if let Some(target) =
+                nav_mesh.closest_point(NavVec3::new(target1.x, target1.y, 0.), NavQuery::Accuracy)
+            {
+                transform1.translation = Vec3::new(target.x, target.y, transform1.translation.z);
             }
 
-            if mesh.is_in_mesh(target2) {
-                transform2.translation = target2.extend(transform2.translation.z);
+            if let Some(target) =
+                nav_mesh.closest_point(NavVec3::new(target2.x, target2.y, 0.), NavQuery::Accuracy)
+            {
+                transform2.translation = Vec3::new(target.x, target.y, transform2.translation.z);
             }
         }
     }

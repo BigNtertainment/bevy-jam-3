@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{
     prelude::{FieldValue, LayerInstance, LdtkEntity, TilesetDefinition},
@@ -7,17 +5,13 @@ use bevy_ecs_ldtk::{
     EntityInstance,
 };
 use bevy_rapier2d::prelude::{Collider, RigidBody, Sensor};
-use bevy_spritesheet_animation::{
-    animation::{Animation, AnimationBounds},
-    animation_graph::{AnimationTransitionCondition, AnimationTransitionMode},
-    animation_manager::AnimationManager,
-};
+use bevy_spritesheet_animation::animation_manager::AnimationManager;
 
 use crate::{
     cleanup::cleanup,
     loading::TextureAssets,
     unit::{Direction, Movement},
-    GameState, WorldState,
+    WorldState,
 };
 
 use self::{
@@ -82,6 +76,9 @@ pub struct EnemyBundle {
     attack_timer: EnemyAttackTimer,
 }
 
+pub const ENEMY_COLLIDER_WIDTH: f32 = 32.;
+pub const ENEMY_COLLIDER_HEIGHT: f32 = 120.;
+
 impl Default for EnemyBundle {
     fn default() -> Self {
         let animation_manager = enemy_animation_manager();
@@ -94,7 +91,7 @@ impl Default for EnemyBundle {
             },
             direction: Direction::default(),
             rigidbody: RigidBody::KinematicPositionBased,
-            collider: Collider::cuboid(32., 128.),
+            collider: Collider::cuboid(ENEMY_COLLIDER_WIDTH, ENEMY_COLLIDER_HEIGHT),
             sensor: Sensor,
             state: EnemyState::default(),
             movement_type: EnemyMovementType::Static { target: Vec2::ZERO },
