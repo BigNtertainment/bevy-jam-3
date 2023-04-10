@@ -1,4 +1,4 @@
-use crate::loading::LevelAssets;
+use crate::{loading::LevelAssets, enemy::EnemyBundle};
 use crate::GameState;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
@@ -19,6 +19,7 @@ impl Plugin for LevelPlugin {
                 ..Default::default()
             })
             .register_ldtk_int_cell::<WallBundle>(1)
+            .register_ldtk_entity::<EnemyBundle>("Enemy")
             .add_system(ldtk_setup.in_schedule(OnEnter(GameState::Playing)));
     }
 }

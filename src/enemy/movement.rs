@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ecs_ldtk::{prelude::FieldValue, EntityInstance, LdtkAsset};
 use bevy_pathmesh::PathMesh;
 use bevy_spritesheet_animation::animation_manager::AnimationManager;
 

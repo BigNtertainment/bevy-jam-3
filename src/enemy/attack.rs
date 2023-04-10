@@ -18,9 +18,15 @@ impl Plugin for EnemyAttackPlugin {
     }
 }
 
-#[derive(Component, Debug, Clone, Default, Reflect, Deref, DerefMut)]
+#[derive(Component, Debug, Clone, Reflect, Deref, DerefMut)]
 #[reflect(Component)]
 pub struct EnemyAttackTimer(pub Timer);
+
+impl Default for EnemyAttackTimer {
+    fn default() -> Self {
+        Self(Timer::from_seconds(1., TimerMode::Repeating))
+    }
+}
 
 fn attack_player(
     mut enemy_query: Query<(

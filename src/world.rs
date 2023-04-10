@@ -30,10 +30,10 @@ fn world_setup(
     // TODO: Precompute the navmesh and load it from a file (see https://github.com/vleue/bevy_pathmesh/blob/main/assets/arena-merged.polyanya.mesh)
     let navmesh = pathmeshes.add(PathMesh::from_polyanya_mesh(polyanya::Mesh::new(
         vec![
-            polyanya::Vertex::new(Vec2::new(-500., -500.), vec![0, -1]),
-            polyanya::Vertex::new(Vec2::new(500., -500.), vec![0, -1]),
-            polyanya::Vertex::new(Vec2::new(500., 500.), vec![0, -1]),
-            polyanya::Vertex::new(Vec2::new(-500., 500.), vec![0, -1]),
+            polyanya::Vertex::new(Vec2::new(-1500., -1500.), vec![0, -1]),
+            polyanya::Vertex::new(Vec2::new(1500., -1500.), vec![0, -1]),
+            polyanya::Vertex::new(Vec2::new(1500., 1500.), vec![0, -1]),
+            polyanya::Vertex::new(Vec2::new(-1500., 1500.), vec![0, -1]),
         ],
         vec![polyanya::Polygon::new(vec![0, 1, 2, 3], false)],
     )));
